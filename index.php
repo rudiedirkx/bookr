@@ -39,6 +39,9 @@ tbody tr:nth-child(even).hilited td {
 	border-top: solid 1px white;
 	margin-top: .25em;
 }
+.notes {
+	font-style: italic;
+}
 div.expandable {
 	max-width: 30em;
 	cursor: pointer;
