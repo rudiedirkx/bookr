@@ -16,32 +16,44 @@ if ( isset($_FILES['csv']) ) {
 
 	$months = array_flip(array('foo', 'jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'));
 
-	$importId = md5(time());
+	$importId = md5(rand());
 
-	$books = $errors = $stats = array();
+	$books = $errors = array();
+	$stats = array('dateless' => 0, 'imported' => 0);
 	foreach ($data as $line => $row) {
 		$book = array(
-			'title' => trim($row['TITLE'], ' .'),
-			'author' => trim($row['AUTHOR'], ' .'),
-			'summary' => trim($row['REVIEW']),
+			'title' => trim(@$row['TITLE'], ' .'),
+			'author' => trim(@$row['AUTHOR'], ' .'),
+			'summary' => trim(@$row['REVIEW']),
 			'created' => time(),
 			'import' => $importId,
 		);
 
+		// VALIDATION
 		if ( !$book['title'] && !$book['author'] ) {
 			continue;
 		}
 
 		if ( !$book['title'] ) {
-			$errors[] = "[$line] This line has an author: <code>" . $book['author'] . "</code>, but no title.";
+			$errors[] = "[$line] This line has an author: " . $book['author'] . ", but no title.";
 			continue;
 		}
 
+		// AUTHOR
+		if ( count($parts = explode(',', $book['author'])) == 2 ) {
+			$book['author'] = trim($parts[1]) . ' ' . trim($parts[0]);
+		}
+
+		// ENTRY DATE
 		$year = $month = 0;
-		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9]#', ' ', strtolower($row['ENTRY DATE']))));
+		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9-]#', ' ', strtolower($row['ENTRY DATE']))));
 		if ( !$date ) {
 			// No date is fine
-			@$stats['dateless']++;
+			$stats['dateless']++;
+		}
+		else if ( preg_match('#^(\d{4})-(\d\d?)-\d\d?$#', $date, $match) ) {
+			$year = $match[1];
+			$month = $match[2];
 		}
 		else if ( preg_match('#^\d+$#', $date) ) {
 			$year = $date;
@@ -50,18 +62,18 @@ if ( isset($_FILES['csv']) ) {
 			$year = $match[2];
 			$mon = substr($match[1], 0, 3);
 			if ( !isset($months[$mon]) ) {
-				$errors[] = "[$line] I can't read the month in this date: <code>" . $row['ENTRY DATE'] . "</code>.";
+				$errors[] = "[$line] I can't read the month in this date: " . $row['ENTRY DATE'] . ".";
 				continue;
 			}
 			$month = $months[$mon];
 		}
 		else {
-			$errors[] = "[$line] I can't read this date: <code>" . $row['ENTRY DATE'] . "</code>.";
+			$errors[] = "[$line] I can't read this date: " . $row['ENTRY DATE'] . ".";
 			continue;
 		}
 		$book['read'] = str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-00';
 
-		@$stats['imported']++;
+		$stats['imported']++;
 
 		$books[] = $book;
 	}
@@ -87,7 +99,23 @@ if ( isset($_FILES['csv']) ) {
 	exit;
 }
 
+else if ( isset($_GET['undo']) ) {
+	$db->delete('books', array('import' => (string)$_GET['undo']));
+	$num = $db->affected_rows();
+
+	$msg = "Deleted $num books.";
+	do_redirect('import', array('msg' => $msg));
+	exit;
+}
+
 include 'tpl.header.php';
+
+$imports = $db->fetch('
+	SELECT import, COUNT(1) AS num, created
+	FROM books
+	GROUP BY import
+	ORDER BY created DESC
+')->all();
 
 ?>
 <h1>Import books</h1>
@@ -96,8 +124,32 @@ include 'tpl.header.php';
 
 <form action method="post" enctype="multipart/form-data">
 	<p>CSV: <input type="file" name="csv" /></p>
-	<p><button>Import</button></p>
+
+	<p><button class="submit">Import</button></p>
 </form>
+
+<h2>Previous imports</h2>
+
+<table border="1" cellpadding="6">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Date</th>
+			<th>Imported</th>
+			<th>Undo</th>
+		</tr>
+	</thead>
+	<tbody>
+		<? foreach ($imports as $import): ?>
+			<tr>
+				<td><?= html($import->import) ?></td>
+				<td><?= date(FORMAT_DATETIME, $import->created) ?></td>
+				<td><?= $import->num ?> books</td>
+				<td><a href="<?= get_url('import', array('undo' => $import->import)) ?>" onclick="return confirm('You sure?')">delete all</a></td>
+			</tr>
+		<? endforeach ?>
+	</tbody>
+</table>
 
 <?php
 

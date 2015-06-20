@@ -5,7 +5,18 @@ require 'inc.bootstrap.php';
 $id = @$_GET['id'];
 $book = $id ? $db->select('books', compact('id'), array(), 'Book')->first() : null;
 
-if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
+$_action = @$_POST['_action'] ?: 'save';
+
+// DELETE
+if ( $id && $_action == 'delete' ) {
+	$db->delete('books', compact('id'));
+
+	do_redirect('index');
+	exit;
+}
+
+// SAVE
+else if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
 	$data = array(
 		'title' => trim($_POST['title']),
 		'author' => trim($_POST['author']),
@@ -87,9 +98,11 @@ textarea {
 	</p>
 
 	<p>
-		<button>Save</button>
-		<? if (!$id): ?>
-			&nbsp;
+		<button class="submit" name="_action" value="save">Save</button>
+		&nbsp;
+		<? if ($id): ?>
+			<button class="delete" name="_action" value="delete">Delete</button>
+		<? else: ?>
 			<label><input type="checkbox" name="another" checked /> Add another book</label>
 		<? endif ?>
 	</p>

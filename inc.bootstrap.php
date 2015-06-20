@@ -5,6 +5,9 @@ require 'inc.functions.php';
 
 require WHERE_DB_GENERIC_AT . '/db_sqlite.php';
 
+define('FORMAT_DATETIME', "j M 'y H:i");
+define('FORMAT_DATE', "j M 'y");
+
 // db connection
 $db = db_sqlite::open(array('database' => __DIR__ . '/db/bookr.sqlite3'));
 if ( !$db ) {

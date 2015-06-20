@@ -4,6 +4,15 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Bookr</title>
+	<style>
+	button.submit {
+		font-weight: bold;
+		color: green;
+	}
+	button.delete {
+		color: #c00;
+	}
+	</style>
 </head>
 
 <body>

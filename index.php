@@ -4,10 +4,10 @@ require 'inc.bootstrap.php';
 
 include 'tpl.header.php';
 
-$books = $db->select('books', '1 ORDER BY id DESC');
+$books = $db->select('books', '1 ORDER BY id DESC')->all();
 
 ?>
-<h1>Your books</h1>
+<h1>Your books (<?= count($books) ?>)</h1>
 
 <style>
 table {
