@@ -14,6 +14,9 @@ table {
 	border-collapse: collapse;
 	width: 100%;
 }
+tr.search-hide {
+	display: none;
+}
 th {
 	text-align: left;
 	background-color: #ddd;
@@ -53,6 +56,8 @@ div.expandable:not(.expanded) {
 }
 </style>
 
+<p>Search <em>Author</em> &amp; <em>Title</em>: <input type="search" id="search" placeholder="cabin" autocomplete="off" /></p>
+
 <table>
 	<thead>
 		<tr>
@@ -62,7 +67,7 @@ div.expandable:not(.expanded) {
 			<th>Summary &amp; notes</th>
 		</tr>
 	</thead>
-	<tbody>
+	<tbody id="body">
 		<? foreach ($books as $book): ?>
 			<tr class="<?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>">
 				<td><?= html($book->author) ?></td>
@@ -78,6 +83,17 @@ div.expandable:not(.expanded) {
 </table>
 
 <script>
+var trs = [].slice.call(document.querySelector('#body').rows);
+document.querySelector('#search').addEventListener('keyup', function(e) {
+	var q = this.value.toLowerCase();
+	trs.forEach(function(tr) {
+		if ( tr._searchText == null ) {
+			tr._searchText = (tr.cells[0].textContent + ' ' + tr.cells[1].textContent).toLowerCase();
+		}
+		tr.classList.toggle('search-hide', tr._searchText.indexOf(q) == -1);
+	});
+});
+
 document.addEventListener('click', function(e) {
 	if ( e.target.classList.contains('expandable') ) {
 		e.target.classList.toggle('expanded');
