@@ -20,6 +20,7 @@
 <p class="menu">
 	<a href="index.php">Your books</a> |
 	<a href="form.php">Add books</a> |
+	<a href="authors.php">Authors</a> |
 	<a href="import.php">Import books</a>
 </p>
 
