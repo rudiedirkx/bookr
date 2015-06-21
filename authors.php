@@ -109,7 +109,7 @@ li.target + li.target {
 			<? endforeach ?>
 		</ul>
 
-		<p><button>Confirm &amp; save</button></p>
+		<p><button class="submit">Confirm &amp; save</button></p>
 		<?php
 	}
 	else {
@@ -143,7 +143,7 @@ li.target + li.target {
 			<? endforeach ?>
 		</table>
 
-		<p><button>Next (summary)</button></p>
+		<p><button class="submit">Next (summary)</button></p>
 		<?php
 	}
 
