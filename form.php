@@ -49,6 +49,61 @@ else if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
 	exit;
 }
 
+// SEARCH
+else if ( isset($_GET['search']) ) {
+	$query = trim($_GET['search']);
+	$data = array('query' => $query, 'matches' => array());
+
+	if ( BOL_COM_API_KEY ) {
+		$params = array(
+			'format' => 'json',
+			'apikey' => BOL_COM_API_KEY,
+			'sort' => 'rankasc',
+			'q' => $query,
+		);
+		$url = 'https://api.bol.com/catalog/v4/search?' . http_build_query($params);
+
+		$_time = microtime(1);
+		$json = file_get_contents($url);
+		$data['time'] = microtime(1) - $_time;
+
+		$response = json_decode($json, true);
+		$had = array();
+		foreach ( $response['products'] as $product ) {
+			if ( $product['gpc'] == 'book' && !empty($product['title']) && !empty($product['specsTag']) ) {
+				$key = trim(mb_strtolower($product['specsTag'] . ':' . $product['title']), '.! )(');
+				if ( isset($had[$key]) ) {
+					continue;
+				}
+				$had[$key] = 1;
+
+				$imageUrl = '';
+				foreach ($product['images'] as $image) {
+					$imageUrl = $image['url'];
+
+					if ( $image['key'] == 'M' ) {
+						break;
+					}
+				}
+
+				$data['matches'][] = array(
+					'id' => $product['id'],
+					'title' => $product['title'],
+					'subtitle' => @$product['subtitle'] ?: '',
+					'author' => @$product['specsTag'] ?: '',
+					'classification' => @$product['summary'] ?: '',
+					'summary' => preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'] ?: ''),
+					'image' => $imageUrl,
+				);
+			}
+		}
+	}
+
+	header('Content-type: text/json; charset=utf-8');
+	echo json_encode($data);
+	exit;
+}
+
 include 'tpl.header.php';
 
 $authors = $db->select_fields('books', 'author, author', '1 ORDER BY author');
@@ -66,18 +121,77 @@ label {
 	display: inline-block;
 	min-width: 7em;
 }
-input:not([type="checkbox"]) {
+input:not([type="checkbox"]):not([type="radio"]) {
 	width: 30em;
+	padding: 1px;
 }
 textarea {
 	width: 37.25em;
 }
+
+.p.search {
+	margin-left: -10px;
+	margin-right: -10px;
+	background-color: #eee;
+	padding: 10px;
+}
+.results-container {
+	display: inline-block;
+	position: relative;
+}
+#results {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0;
+	border: solid 1px #999;
+	margin-left: 1em;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	margin-top: -0.5em;
+}
+#results:not(.results) {
+	display: none;
+}
+#results li {
+	list-style: none;
+	display: block;
+}
+#results a {
+	display: block;
+	padding: 5px;
+	color: inherit;
+	text-decoration: inherit;
+	background-color: #f7f7f7;
+
+	white-space: nowrap;
+	max-width: 30em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#results li:nth-child(even) a {
+	background-color: #e7e7e7;
+}
+#results li:nth-child(1n) a:hover,
+#results li:nth-child(1n) a:focus {
+	background-color: #d7d7d7;
+	outline: solid 1px black;
+}
 </style>
 
 <form action method="post">
+	<div class="p search">
+		<label for="txt-search">Search:</label>
+		<input id="search" type="search" autofocus value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
+		<div class="results-container">
+			&nbsp;
+			<ul id="results"></ul>
+		</div>
+	</div>
+
 	<p>
 		<label for="txt-title">Title:</label>
-		<input name="title" value="<?= html(@$book->title) ?>" required autofocus placeholder="The holy bible" />
+		<input name="title" value="<?= html(@$book->title) ?>" required placeholder="The holy bible" />
 	</p>
 	<p>
 		<label for="txt-author">Author:</label>
@@ -90,7 +204,7 @@ textarea {
 	</p>
 	<p>
 		<label for="txt-summary">Summary:</label><br />
-		<textarea name="summary" rows="6" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
+		<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
 	</p>
 	<p>
 		<label for="txt-notes">Personal notes:</label><br />
@@ -109,6 +223,65 @@ textarea {
 </form>
 
 <datalist id="authors"><?= html_options($authors, null, '', true) ?></datalist>
+
+<script>
+var books = {};
+var $results = document.getElementById('results');
+$results.addEventListener('click', function(e) {
+	e.preventDefault();
+	var id = e.target.dataset.id;
+	if (id) {
+		var book = books[id];
+
+		var elements = document.querySelector('form').elements;
+		elements.title.value = book.title;
+		elements.author.value = book.author;
+		elements.summary.value = book.summary;
+	}
+});
+
+var $search = document.getElementById('search');
+var searchTimer;
+$search.addEventListener('keyup', function(e) {
+	if (this.lastValue === undefined) {
+		this.lastValue = this.originalValue;
+	}
+
+	if (this.value != this.lastValue) {
+		this.lastValue = this.value;
+		if (!this.value.trim()) {
+			$results.classList.remove('results');
+			return;
+		}
+
+		searchTimer && clearTimeout(searchTimer);
+		searchTimer = setTimeout(function(q) {
+			console.time('SEARCH "' + q + '"');
+			var xhr = new XMLHttpRequest;
+			xhr.open('get', '?search=' + encodeURIComponent(q), true);
+			xhr.onload = function(e) {
+				var rsp = JSON.parse(this.responseText);
+				console.timeEnd('SEARCH "' + q + '"');
+console.log('RESULTS', rsp.matches);
+
+				function enc(text) {
+					return text.replace(/</g, '&lt;');
+				}
+
+				var html = '';
+				rsp.matches.forEach(function(book) {
+					books[book.id] = book;
+					html += '<li><a data-id="' + book.id + '" href>' + enc(book.author) + ' - ' + enc(book.title) + '<br />' + enc(book.subtitle) + '<br />' + enc(book.classification) + '</a></li>';
+				});
+
+				$results.innerHTML = html;
+				$results.classList.add('results');
+			};
+			xhr.send();
+		}, 500, this.value.trim());
+	}
+});
+</script>
 
 <?php
 

@@ -5,6 +5,14 @@
 	<meta charset="utf-8" />
 	<title>Bookr</title>
 	<style>
+	* { box-sizing: border-box; }
+	html, body {
+		margin: 0;
+		padding: 0;
+	}
+	body {
+		margin: 10px;
+	}
 	button.submit {
 		font-weight: bold;
 		color: green;
