@@ -12,5 +12,7 @@ return array(
 		'created' => array('unsigned' => true),
 		'updated' => array('unsigned' => true),
 		'import',
+		'isbn10',
+		'isbn13',
 	),
 );

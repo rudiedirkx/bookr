@@ -31,6 +31,10 @@ else if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
 	));
 
 	if ( $id ) {
+		// Add ISBNs if they were posted
+		isset($_POST['isbn10']) && $data['isbn10'] = $_POST['isbn10'];
+		isset($_POST['isbn13']) && $data['isbn13'] = $_POST['isbn13'];
+
 		$data['updated'] = time();
 		$db->update('books', $data, compact('id'));
 	}
@@ -59,6 +63,7 @@ else if ( isset($_GET['search']) ) {
 			'format' => 'json',
 			'apikey' => BOL_COM_API_KEY,
 			'sort' => 'rankasc',
+			'includeattributes' => 'true',
 			'q' => $query,
 		);
 		$url = 'https://api.bol.com/catalog/v4/search?' . http_build_query($params);
@@ -86,14 +91,28 @@ else if ( isset($_GET['search']) ) {
 					}
 				}
 
+				$isbn10 = $isbn13 = '';
+				foreach ( $product['attributeGroups'] as $group ) {
+					foreach ( $group['attributes'] as $attribute ) {
+						if ( $attribute['key'] == 'ISBN10' ) {
+							$isbn10 = $attribute['value'];
+						}
+						if ( $attribute['key'] == 'ISBN13' ) {
+							$isbn13 = $attribute['value'];
+						}
+					}
+				}
+
 				$data['matches'][] = array(
-					'id' => $product['id'],
-					'title' => $product['title'],
-					'subtitle' => @$product['subtitle'] ?: '',
-					'author' => @$product['specsTag'] ?: '',
-					'classification' => @$product['summary'] ?: '',
-					'summary' => preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'] ?: ''),
-					'image' => $imageUrl,
+					'id' => trim($product['id']),
+					'title' => trim($product['title']),
+					'subtitle' => trim(@$product['subtitle'] ?: ''),
+					'author' => trim(@$product['specsTag'] ?: ''),
+					'classification' => trim(@$product['summary'] ?: ''),
+					'summary' => trim(preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'] ?: '')),
+					'image' => trim($imageUrl),
+					'isbn10' => trim($isbn10),
+					'isbn13' => trim($isbn13),
 				);
 			}
 		}
@@ -211,6 +230,9 @@ textarea {
 		<textarea name="notes" rows="3" placeholder="A little long, but I liked the part where they drank the wine."><?= html(@$book->notes) ?></textarea>
 	</p>
 
+	<input type="hidden" name="isbn10" value="<?= html(@$book->isbn10) ?>" />
+	<input type="hidden" name="isbn13" value="<?= html(@$book->isbn13) ?>" />
+
 	<p>
 		<button class="submit" name="_action" value="save">Save</button>
 		&nbsp;
@@ -234,9 +256,11 @@ $results.addEventListener('click', function(e) {
 		var book = books[id];
 
 		var elements = document.querySelector('form').elements;
-		elements.title.value = book.title;
-		elements.author.value = book.author;
-		elements.summary.value = book.summary;
+		book.title && (elements.title.value = book.title);
+		book.author && (elements.author.value = book.author);
+		book.summary && (elements.summary.value = book.summary);
+		book.isbn10 && (elements.isbn10.value = book.isbn10);
+		book.isbn13 && (elements.isbn13.value = book.isbn13);
 	}
 });
 
