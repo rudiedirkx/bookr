@@ -96,7 +96,7 @@ li.target + li.target {
 		<ul>
 			<? foreach ($targets as $n => $target): ?>
 				<li class="target">
-					Keep &nbsp; <strong><?= html($target) ?></strong> &nbsp; in favor of:
+					Keep &nbsp; <strong><?= html($target) ?></strong> &nbsp; instead of:
 					<ul>
 						<? foreach ($sources[$n] as $source): ?>
 							<li class="source">
