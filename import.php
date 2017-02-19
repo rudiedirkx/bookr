@@ -14,7 +14,7 @@ if ( isset($_FILES['csv']) ) {
 	$data = file_get_contents($file->tmp_name);
 	$data = csv_read_doc($data);
 
-	$months = array_flip(array('foo', 'jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'));
+	$months = array_flip(array('', 'jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'));
 
 	$importId = md5(rand());
 
@@ -22,9 +22,9 @@ if ( isset($_FILES['csv']) ) {
 	$stats = array('dateless' => 0, 'imported' => 0);
 	foreach ($data as $line => $row) {
 		$book = array(
-			'title' => trim(@$row['TITLE'], ' .'),
-			'author' => trim(@$row['AUTHOR'], ' .'),
-			'summary' => trim(@$row['REVIEW']),
+			'title' => trim(@$row['title'], ' .'),
+			'author' => trim(@$row['author'], ' .'),
+			'notes' => trim(@$row['notes']),
 			'created' => time(),
 			'import' => $importId,
 		);
@@ -44,31 +44,35 @@ if ( isset($_FILES['csv']) ) {
 			$book['author'] = trim($parts[1]) . ' ' . trim($parts[0]);
 		}
 
-		// ENTRY DATE
+		// ADDED
 		$year = $month = 0;
-		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9-]#', ' ', strtolower($row['ENTRY DATE']))));
+		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9-]#', ' ', strtolower($row['added']))));
 		if ( !$date ) {
 			// No date is fine
 			$stats['dateless']++;
 		}
 		else if ( preg_match('#^(\d{4})-(\d\d?)-\d\d?$#', $date, $match) ) {
+			// Y-m-d is great
 			$year = $match[1];
 			$month = $match[2];
 		}
 		else if ( preg_match('#^\d+$#', $date) ) {
+			// Just Year is good
 			$year = $date;
 		}
 		else if ( preg_match('#^([a-z]{3,}) (\d+)$#', $date, $match) ) {
+			// Year + DUTCH Month
 			$year = $match[2];
 			$mon = substr($match[1], 0, 3);
 			if ( !isset($months[$mon]) ) {
-				$errors[] = "[$line] I can't read the month in this date: " . $row['ENTRY DATE'] . ".";
+				$errors[] = "[$line] I can't read the month in this date: " . $row['added'] . ".";
 				continue;
 			}
 			$month = $months[$mon];
 		}
 		else {
-			$errors[] = "[$line] I can't read this date: " . $row['ENTRY DATE'] . ".";
+			// Unsupported date format
+			$errors[] = "[$line] I can't read this date: " . $row['added'] . ".";
 			continue;
 		}
 		$book['read'] = str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-00';
@@ -92,7 +96,7 @@ if ( isset($_FILES['csv']) ) {
 
 	$msg = array(
 		$stats['imported'] . " books imported",
-		$stats['dateless'] . " books without ENTRY DATE",
+		$stats['dateless'] . " books without added",
 		"Import ID: " . $importId,
 	);
 	do_redirect('index', array('msg' => $msg));
@@ -120,7 +124,7 @@ $imports = $db->fetch('
 ?>
 <h1>Import books</h1>
 
-<p>Upload a CSV with columns: <code>TITLE, AUTHOR, ENTRY DATE, REVIEW</code>.</p>
+<p>Upload a CSV with columns: <code>title, author, added, notes</code>.</p>
 
 <form action method="post" enctype="multipart/form-data">
 	<p>CSV: <input type="file" name="csv" /></p>
