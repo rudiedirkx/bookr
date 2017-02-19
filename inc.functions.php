@@ -62,7 +62,7 @@ function get_date( $date ) {
 
 	// With month
 	if ( $components[1] ) {
-		$utc = strtotime($date);
+		$utc = mktime(0, 0, 0, $components[1], 1, $components[0]);
 		return date('F Y', $utc);
 	}
 
