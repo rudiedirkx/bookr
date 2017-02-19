@@ -97,9 +97,6 @@ document.querySelector('#search').addEventListener('keyup', function(e) {
 document.addEventListener('click', function(e) {
 	if ( e.target.classList.contains('expandable') ) {
 		e.target.classList.toggle('expanded');
-
-		var tr = e.target.parentNode.parentNode;
-		tr.classList.toggle('hilited', tr.querySelector('.expanded') ? true : false);
 	}
 });
 
