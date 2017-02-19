@@ -20,6 +20,10 @@
 	button.delete {
 		color: #c00;
 	}
+	.messages {
+		font-weight: bold;
+		color: green;
+	}
 	</style>
 </head>
 
