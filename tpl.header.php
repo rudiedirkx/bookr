@@ -10,6 +10,19 @@
 		margin: 0;
 		padding: 0;
 	}
+	body, input, select, option, textarea {
+		font-family: Arial;
+		font-size: 16px;
+	}
+	:-ms-input-placeholder {
+		color: #aaa;
+	}
+	::-moz-placeholder {
+		color: #888;
+	}
+	::-webkit-input-placeholder {
+		color: #bbb;
+	}
 	body {
 		margin: 10px;
 	}
