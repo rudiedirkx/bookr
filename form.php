@@ -73,8 +73,10 @@ else if ( isset($_GET['search']) ) {
 		$data['time'] = microtime(1) - $_time;
 
 		$response = json_decode($json, true);
+		$products = (array) @$response['products'];
+
 		$had = array();
-		foreach ( $response['products'] as $product ) {
+		foreach ( $products as $product ) {
 			if ( $product['gpc'] == 'book' && !empty($product['title']) && !empty($product['specsTag']) ) {
 				$key = trim(mb_strtolower($product['specsTag'] . ':' . $product['title']), '.! )(');
 				if ( isset($had[$key]) ) {
@@ -83,7 +85,7 @@ else if ( isset($_GET['search']) ) {
 				$had[$key] = 1;
 
 				$imageUrl = '';
-				foreach ($product['images'] as $image) {
+				foreach ( (array) @$product['images'] as $image ) {
 					$imageUrl = $image['url'];
 
 					if ( $image['key'] == 'M' ) {
@@ -92,7 +94,7 @@ else if ( isset($_GET['search']) ) {
 				}
 
 				$isbn10 = $isbn13 = '';
-				foreach ( $product['attributeGroups'] as $group ) {
+				foreach ( (array) @$product['attributeGroups'] as $group ) {
 					foreach ( $group['attributes'] as $attribute ) {
 						if ( $attribute['key'] == 'ISBN10' ) {
 							$isbn10 = $attribute['value'];
@@ -158,6 +160,14 @@ textarea {
 	display: inline-block;
 	position: relative;
 }
+.results-container img {
+	position: absolute;
+	top: 0;
+	left: -2px;
+}
+:not(.searching) > img {
+	display: none;
+}
 #results {
 	position: absolute;
 	top: 0;
@@ -169,7 +179,18 @@ textarea {
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 	margin-top: -0.5em;
 }
-#results:not(.results) {
+#results:before {
+	display: block;
+	content: attr(data-num-results) " results...";
+	padding: 5px 8px;
+	padding-right: 2em;
+	background-color: #ccc;
+	border-bottom: solid 1px #000;
+	font-weight: bold;
+	white-space: nowrap;
+	min-width: 12em;
+}
+:not(.results) > #results {
 	display: none;
 }
 #results li {
@@ -178,10 +199,12 @@ textarea {
 }
 #results a {
 	display: block;
-	padding: 5px;
+	padding: 5px 8px;
+	padding-right: 2em;
 	color: inherit;
 	text-decoration: inherit;
 	background-color: #f7f7f7;
+	color: #000;
 
 	white-space: nowrap;
 	max-width: 30em;
@@ -196,15 +219,25 @@ textarea {
 	background-color: #d7d7d7;
 	outline: solid 1px black;
 }
+#results a .author-title {
+	font-weight: bold;
+}
+#results a .subtitle {
+	color: #777;
+}
+#results a .classification {
+	color: #aaa;
+}
 </style>
 
 <form action method="post">
 	<div class="p search">
 		<label for="txt-search">Search:</label>
-		<input id="search" type="search" autofocus value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
+		<input id="search" type="search" autofocus autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
 		<div class="results-container">
 			&nbsp;
-			<ul id="results"></ul>
+			<img src="images/loading16.gif" />
+			<ul data-num-results="0" id="results"></ul>
 		</div>
 	</div>
 
@@ -251,7 +284,7 @@ var books = {};
 var $results = document.getElementById('results');
 $results.addEventListener('click', function(e) {
 	e.preventDefault();
-	var id = e.target.dataset.id;
+	var id = e.target.dataset.id || e.target.parentNode.dataset.id;
 	if (id) {
 		var book = books[id];
 
@@ -265,7 +298,11 @@ $results.addEventListener('click', function(e) {
 });
 
 var $search = document.getElementById('search');
-var searchTimer;
+var searchTimer, lastXHR;
+$search.addEventListener('keydown', function(e) {
+	// Disable ENTER in the search field
+	if (e.keyCode == 13) e.preventDefault();
+});
 $search.addEventListener('keyup', function(e) {
 	if (this.lastValue === undefined) {
 		this.lastValue = this.originalValue;
@@ -274,19 +311,23 @@ $search.addEventListener('keyup', function(e) {
 	if (this.value != this.lastValue) {
 		this.lastValue = this.value;
 		if (!this.value.trim()) {
-			$results.classList.remove('results');
+			$results.parentNode.classList.remove('results');
 			return;
 		}
 
 		searchTimer && clearTimeout(searchTimer);
 		searchTimer = setTimeout(function(q) {
-			console.time('SEARCH "' + q + '"');
+			lastXHR && lastXHR.abort();
+
+			$results.parentNode.classList.add('searching');
+console.time('SEARCH "' + q + '"');
 			var xhr = new XMLHttpRequest;
+			lastXHR = xhr;
 			xhr.open('get', '?search=' + encodeURIComponent(q), true);
 			xhr.onload = function(e) {
 				var rsp = JSON.parse(this.responseText);
 				console.timeEnd('SEARCH "' + q + '"');
-console.log('RESULTS', rsp.matches);
+console.log('RESULTS', rsp);
 
 				function enc(text) {
 					return text.replace(/</g, '&lt;');
@@ -295,11 +336,18 @@ console.log('RESULTS', rsp.matches);
 				var html = '';
 				rsp.matches.forEach(function(book) {
 					books[book.id] = book;
-					html += '<li><a data-id="' + book.id + '" href>' + enc(book.author) + ' - ' + enc(book.title) + '<br />' + enc(book.subtitle) + '<br />' + enc(book.classification) + '</a></li>';
+					html +=	'<li><a data-id="' + book.id + '" href>' +
+							'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
+							'<div class="subtitle">' + enc(book.subtitle) + '</div>' +
+							'<div class="classification">' + enc(book.classification) + '</div>' +
+							'</a></li>';
 				});
 
+				$results.dataset.numResults = rsp.matches.length;
+
 				$results.innerHTML = html;
-				$results.classList.add('results');
+				$results.parentNode.classList.add('results');
+				$results.parentNode.classList.remove('searching');
 			};
 			xhr.send();
 		}, 500, this.value.trim());
