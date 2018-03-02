@@ -96,10 +96,10 @@ else if ( isset($_GET['search']) ) {
 				$isbn10 = $isbn13 = '';
 				foreach ( (array) @$product['attributeGroups'] as $group ) {
 					foreach ( $group['attributes'] as $attribute ) {
-						if ( $attribute['key'] == 'ISBN10' ) {
+						if ( strtolower($attribute['label']) == 'isbn10' ) {
 							$isbn10 = $attribute['value'];
 						}
-						if ( $attribute['key'] == 'ISBN13' ) {
+						elseif ( strtolower($attribute['label']) == 'isbn13' ) {
 							$isbn13 = $attribute['value'];
 						}
 					}
@@ -200,14 +200,14 @@ textarea {
 #results a {
 	display: block;
 	padding: 5px 8px;
-	padding-right: 2em;
 	color: inherit;
 	text-decoration: inherit;
 	background-color: #f7f7f7;
 	color: #000;
-
-	white-space: nowrap;
 	max-width: 30em;
+}
+#results a > * {
+	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }

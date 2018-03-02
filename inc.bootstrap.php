@@ -1,9 +1,7 @@
 <?php
 
 require 'env.php';
-require 'inc.functions.php';
-
-require WHERE_DB_GENERIC_AT . '/db_sqlite.php';
+require 'vendor/autoload.php';
 
 define('FORMAT_DATETIME', "j M 'y H:i");
 define('FORMAT_DATE', "j M 'y");
@@ -14,9 +12,4 @@ if ( !$db ) {
 	exit('No database connecto...');
 }
 
-// db schema
-$schema = require 'inc.db-schema.php';
-require 'inc.ensure-db-schema.php';
-
-// classes
-require 'inc.book.php';
+$db->ensureSchema(require 'inc.db-schema.php');

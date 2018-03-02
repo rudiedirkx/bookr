@@ -1,18 +1,21 @@
 <?php
 
-return array(
-	'books' => array(
-		'id' => array('pk' => true),
-		'user_id' => array('unsigned' => true),
-		'title',
-		'author',
-		'read' => array('type' => 'date'),
-		'summary',
-		'notes',
-		'created' => array('unsigned' => true),
-		'updated' => array('unsigned' => true),
-		'import',
-		'isbn10',
-		'isbn13',
-	),
-);
+return [
+	'version' => 1,
+	'tables' => [
+		'books' => [
+			'id' => ['pk' => true],
+			'user_id' => ['unsigned' => true],
+			'title',
+			'author',
+			'read' => ['type' => 'date'],
+			'summary',
+			'notes',
+			'created' => ['unsigned' => true],
+			'updated' => ['unsigned' => true],
+			'import',
+			'isbn10',
+			'isbn13',
+		],
+	],
+];
