@@ -4,50 +4,18 @@
 <head>
 	<meta charset="utf-8" />
 	<title>Bookr</title>
-	<style>
-	* { box-sizing: border-box; }
-	html, body {
-		margin: 0;
-		padding: 0;
-	}
-	body, input, select, option, textarea {
-		font-family: Arial;
-		font-size: 16px;
-	}
-	:-ms-input-placeholder {
-		color: #aaa;
-	}
-	::-moz-placeholder {
-		color: #888;
-	}
-	::-webkit-input-placeholder {
-		color: #bbb;
-	}
-	body {
-		margin: 10px;
-	}
-	button.submit {
-		font-weight: bold;
-		color: green;
-	}
-	button.delete {
-		color: #c00;
-	}
-	.messages {
-		font-weight: bold;
-		color: green;
-	}
-	</style>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 
 <body>
 
 <p class="menu">
-	<a href="index.php">Your books</a> |
-	<a href="export.php">Export books</a> |
-	<a href="form.php">Add book</a> |
+	<a href="index.php">Library</a> |
+	<a href="form.php">Add</a> |
 	<a href="authors.php">Authors</a> |
-	<a href="import.php">Import books</a>
+	<a href="export.php">Export</a> |
+	<a href="import.php">Import</a>
 </p>
 
 <? if (@$_GET['msg']): ?>
