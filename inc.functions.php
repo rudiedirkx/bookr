@@ -59,10 +59,12 @@ function csv_file( $data, $cols, $filename = '' ) {
 }
 
 function html_options( $options, $selected = null, $empty = '', $datalist = false ) {
+	$selected = (array) $selected;
+
 	$html = '';
 	$empty && $html .= '<option value="">' . $empty . '</option>';
 	foreach ( $options AS $value => $label ) {
-		$isSelected = $value == $selected ? ' selected' : '';
+		$isSelected = in_array($value, $selected) ? ' selected' : '';
 		$value = $datalist ? html($label) : html($value);
 		$label = $datalist ? '' : html($label);
 		$html .= '<option value="' . $value . '"' . $isSelected . '>' . $label . '</option>';
@@ -80,7 +82,7 @@ function get_date( $date ) {
 	}
 
 	// Only year
-	else if ( $components[0] ) {
+	elseif ( $components[0] ) {
 		return $components[0];
 	}
 

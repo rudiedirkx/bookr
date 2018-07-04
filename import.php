@@ -1,6 +1,7 @@
 <?php
 
 use rdx\bookr\Book;
+use rdx\bookr\Label;
 
 require 'inc.bootstrap.php';
 
@@ -19,6 +20,11 @@ if ( isset($_FILES['csv']) ) {
 	$data = csv_read_doc($data, true, $keepCols);
 
 	$months = array_flip(array('', 'jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'));
+
+	$labels = Label::all('1');
+	$labelMapping = array_reduce($labels, function(array $list, Label $label) {
+		return $list + [$label->name => $label->id];
+	}, []);
 
 	$importId = time();
 
@@ -41,7 +47,7 @@ if ( isset($_FILES['csv']) ) {
 		}
 
 		if ( !$book['title'] ) {
-			$errors[] = "[$line] This line has an author: " . $book['author'] . ", but no title.";
+			$errors[] = "[$line] This line has an author: '" . $book['author'] . "', but no title.";
 			continue;
 		}
 
@@ -74,33 +80,46 @@ if ( isset($_FILES['csv']) ) {
 			// No date is fine
 			$stats['dateless']++;
 		}
-		else if ( preg_match('#^(\d{4})-(\d\d?)-\d\d?$#', $date, $match) ) {
+		elseif ( preg_match('#^(\d{4})-(\d\d?)-\d\d?$#', $date, $match) ) {
 			// Y-m-d is great
 			$year = $match[1];
 			$month = $match[2];
 		}
-		else if ( preg_match('#^\d+$#', $date) ) {
+		elseif ( preg_match('#^\d+$#', $date) ) {
 			// Just Year is good
 			$year = $date;
 		}
-		else if ( preg_match('#^([a-z]{3,}) (\d+)$#', $date, $match) ) {
+		elseif ( preg_match('#^([a-z]{3,}) (\d+)$#', $date, $match) ) {
 			// Year + DUTCH Month
 			$year = $match[2];
 			$mon = substr($match[1], 0, 3);
 			if ( !isset($months[$mon]) ) {
-				$errors[] = "[$line] I can't read the month in this date: " . $row['finished'] . ".";
+				$errors[] = "[$line] I can't read the month in this date: '" . $row['finished'] . "'.";
 				continue;
 			}
 			$month = $months[$mon];
 		}
 		else {
 			// Unsupported date format
-			$errors[] = "[$line] I can't read this date: " . $row['finished'] . ".";
+			$errors[] = "[$line] I can't read this date: '" . $row['finished'] . "'.";
 			continue;
 		}
 		$book['finished'] = $year ? str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-00' : null;
 
-		// @todo LABELS
+		// LABELS
+		if ( $labels = array_filter(array_map('trim', explode(',', @$row['labels']))) ) {
+			$book['label_ids'] = [];
+
+			foreach ( $labels as $label ) {
+				if ( !isset($labelMapping[$label]) ) {
+					// Unknown label
+					$errors[] = "[$line] Unknown label: '" . $label . "'.";
+					continue 2;
+				}
+
+				$book['label_ids'][] = $labelMapping[$label];
+			}
+		}
 
 		$stats['imported']++;
 
@@ -128,7 +147,7 @@ if ( isset($_FILES['csv']) ) {
 	exit;
 }
 
-else if ( isset($_GET['undo']) ) {
+elseif ( isset($_GET['undo']) ) {
 	$db->delete('books', ['user_id' => $g_user->id, 'import' => $_GET['undo']]);
 	$num = $db->affected_rows();
 
@@ -149,6 +168,8 @@ $imports = $db->fetch("
 
 ?>
 <h1>Import books</h1>
+
+<p><a href="<?= get_url('labels') ?>">manage labels</a></p>
 
 <p>Upload a CSV with columns: <code><?= implode(', ', $keepCols) ?></code>.</p>
 

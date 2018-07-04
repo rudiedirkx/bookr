@@ -1,6 +1,8 @@
 <?php
 
 use rdx\bookr\Book;
+use rdx\bookr\Label;
+use rdx\bookr\Model;
 
 require 'inc.bootstrap.php';
 
@@ -18,7 +20,7 @@ if ( $book && $_action == 'delete' ) {
 }
 
 // SAVE
-else if ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
+elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	$data = array(
 		'title' => trim($_POST['title']),
 		'author' => trim($_POST['author']),
@@ -29,6 +31,7 @@ else if ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	isset($_POST['notes']) and $data['notes'] = trim($_POST['notes']);
 	isset($_POST['isbn10']) and $data['isbn10'] = trim($_POST['isbn10']);
 	isset($_POST['isbn13']) and $data['isbn13'] = trim($_POST['isbn13']);
+	isset($_POST['label_ids']) and $data['label_ids'] = array_filter($_POST['label_ids']);
 
 	$year = (int) $_POST['finished']['year'];
 	$month = (int) $_POST['finished']['month'];
@@ -55,7 +58,7 @@ else if ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 }
 
 // SEARCH
-else if ( isset($_GET['search']) ) {
+elseif ( isset($_GET['search']) ) {
 	$query = trim($_GET['search']);
 	$data = array('query' => $query, 'matches' => array());
 
@@ -128,6 +131,12 @@ else if ( isset($_GET['search']) ) {
 
 include 'tpl.header.php';
 
+$labels = Label::allSorted();
+$labelOptions = Model::options($labels);
+$defaultLabelIds = array_keys(array_filter($labels, function(Label $label) {
+	return $label->default_on;
+}));
+
 $authors = $db->select_fields('books', 'author, author', 'user_id = ? ORDER BY author', [$g_user->id]);
 
 $years = array_combine(range(date('Y'), 1990), range(date('Y'), 1990));
@@ -166,6 +175,14 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<select name="rating"><?= html_options(Book::$ratings, @$book->rating, '--') ?></select>
 		<? endif ?>
 	</p>
+	<? if (count($labelOptions)): ?>
+		<p>
+			<label>Labels:</label>
+			<select name="label_ids[]" multiple size="<?= count($labelOptions) ?>"><?= html_options($labelOptions, $book ? $book->label_ids : $defaultLabelIds) ?></select>
+			&nbsp;
+			<a href="<?= get_url('labels') ?>">manage labels</a>
+		</p>
+	<? endif ?>
 	<? if ($g_user->setting_summary): ?>
 		<p>
 			<label for="txt-summary">Summary:</label><br />

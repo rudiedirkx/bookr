@@ -136,11 +136,25 @@ div.expandable:not(.expanded) {
 
 label {
 	display: block;
+	vertical-align: top;
 }
-input:not([type="checkbox"]):not([type="radio"]) {
+input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
 	width: 30em;
 	max-width: 100%;
 	padding: 1px;
+}
+input[type="number"] {
+	width: 2em;
+	text-align: center;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
+}
+input[type="number"] {
+	-moz-appearance: textfield;
 }
 textarea {
 	width: 37.25em;

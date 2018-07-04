@@ -38,6 +38,9 @@ $books = Book::all('1 ORDER BY id DESC');
 					<? endif ?>
 				</th>
 			<? endif ?>
+			<? if ($g_user->setting_labels): ?>
+				<th class="hide-on-small">Labels</th>
+			<? endif ?>
 		</tr>
 	</thead>
 	<tbody id="body">
@@ -58,6 +61,9 @@ $books = Book::all('1 ORDER BY id DESC');
 							<div class="notes expandable"><?= html($book->notes) ?></div>
 						<? endif ?>
 					</td>
+				<? endif ?>
+				<? if ($g_user->setting_labels): ?>
+					<td class="hide-on-small"><?= implode('<br>', array_map('html', $book->label_names)) ?></td>
 				<? endif ?>
 			</tr>
 		<? endforeach ?>

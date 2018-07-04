@@ -34,4 +34,8 @@ class User extends Model {
 		return (bool) $this->getSetting('rating', false);
 	}
 
+	protected function get_setting_labels() {
+		return (bool) $this->getSetting('labels', true);
+	}
+
 }

@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 3,
+	'version' => 8,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -23,6 +23,26 @@ return [
 			'isbn10' => ['null' => true, 'default' => null],
 			'isbn13' => ['null' => true, 'default' => null],
 			'rating' => ['unsigned' => true, 'null' => true, 'default' => null],
+		],
+		'categories' => [
+			'id' => ['pk' => true],
+			'user_id' => ['unsigned' => true, 'null' => false, 'references' => ['users', 'id']],
+			'name' => ['null' => false],
+			'required' => ['unsigned' => true, 'null' => false, 'default' => 0],
+			'multiple' => ['unsigned' => true, 'null' => false, 'default' => 0],
+			'weight' => ['type' => 'int', 'null' => false, 'default' => 0],
+		],
+		'labels' => [
+			'id' => ['pk' => true],
+			'user_id' => ['unsigned' => true, 'null' => false, 'references' => ['users', 'id']],
+			'name' => ['null' => false],
+			'category_id' => ['unsigned' => true, 'null' => false, 'references' => ['categories', 'id']],
+			'default_on' => ['unsigned' => true, 'null' => false, 'default' => 0],
+			'weight' => ['type' => 'int'],
+		],
+		'books_labels' => [
+			'book_id' => ['unsigned' => true, 'null' => false, 'references' => ['books', 'id']],
+			'label_id' => ['unsigned' => true, 'null' => false, 'references' => ['labels', 'id']],
 		],
 	],
 ];
