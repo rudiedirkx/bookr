@@ -1,5 +1,12 @@
 <?php
 
+function html_asset( $src ) {
+	$local = is_int(strpos($_SERVER['HTTP_HOST'], 'home.'));
+	$mobile = is_int(stripos($_SERVER['HTTP_USER_AGENT'], 'mobile'));
+	$buster = $local && !$mobile ? '' : '?_' . filemtime($src);
+	return $src . $buster;
+}
+
 function do_auth() {
 	header('WWW-Authenticate: Basic realm="Bookr login"');
 	echo "Bookr login";
@@ -69,7 +76,7 @@ function get_date( $date ) {
 	// With month
 	if ( $components[1] ) {
 		$utc = mktime(0, 0, 0, $components[1], 1, $components[0]);
-		return date('F Y', $utc);
+		return date('M Y', $utc);
 	}
 
 	// Only year
@@ -77,8 +84,7 @@ function get_date( $date ) {
 		return $components[0];
 	}
 
-	// Empty
-	return '?';
+	return '';
 }
 
 function get_url( $path, $query = array() ) {

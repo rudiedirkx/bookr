@@ -5,47 +5,43 @@ use rdx\bookr\Book;
 require 'inc.bootstrap.php';
 
 $id = @$_GET['id'];
-$book = $id ? Book::first(['id' => $id, 'user_id' => $g_user->id]) : null;
+$book = $id ? Book::find($id) : null;
 
 $_action = @$_POST['_action'] ?: 'save';
 
 // DELETE
 if ( $book && $_action == 'delete' ) {
-	$db->delete('books', compact('id'));
+	$book->delete();
 
 	do_redirect('index');
 	exit;
 }
 
 // SAVE
-else if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
+else if ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	$data = array(
 		'title' => trim($_POST['title']),
 		'author' => trim($_POST['author']),
-		'summary' => trim($_POST['summary']),
-		'notes' => trim($_POST['notes']),
 	);
 
-	$year = (int)$_POST['read']['year'];
-	$month = (int)$_POST['read']['month'];
-	$data['read'] = $year ? implode('-', array(
+	isset($_POST['rating']) and $data['rating'] = (int) $_POST['rating'] ?: null;
+	isset($_POST['summary']) and $data['summary'] = trim($_POST['summary']);
+	isset($_POST['notes']) and $data['notes'] = trim($_POST['notes']);
+	isset($_POST['isbn10']) and $data['isbn10'] = trim($_POST['isbn10']);
+	isset($_POST['isbn13']) and $data['isbn13'] = trim($_POST['isbn13']);
+
+	$year = (int) $_POST['finished']['year'];
+	$month = (int) $_POST['finished']['month'];
+	$data['finished'] = $year ? implode('-', array(
 		str_pad($year ?: '0', 4, '0', STR_PAD_LEFT),
 		str_pad($month ?: '0', 2, '0', STR_PAD_LEFT),
 		'00',
 	)) : null;
 
 	if ( $book ) {
-		// Add ISBNs if they were posted
-		isset($_POST['isbn10']) && $data['isbn10'] = $_POST['isbn10'];
-		isset($_POST['isbn13']) && $data['isbn13'] = $_POST['isbn13'];
-
-		$data['updated'] = time();
-
 		$book->update($data);
 	}
 	else {
-		$data['user_id'] = $g_user->id;
-		$data['created'] = time();
 		$id = Book::insert($data);
 	}
 
@@ -132,7 +128,7 @@ else if ( isset($_GET['search']) ) {
 
 include 'tpl.header.php';
 
-$authors = $db->select_fields('books', 'author, author', '1 ORDER BY author');
+$authors = $db->select_fields('books', 'author, author', 'user_id = ? ORDER BY author', [$g_user->id]);
 
 $years = array_combine(range(date('Y'), 1990), range(date('Y'), 1990));
 $months = array_combine(range(1, 12), array_map(function($m) {
@@ -140,7 +136,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 }, range(1, 12)));
 
 ?>
-<h1>Add/edit book</h1>
+<h1><?= $book ? 'Edit' : 'Add' ?> book</h1>
 
 <form action method="post">
 	<div class="p search">
@@ -163,17 +159,25 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	</p>
 	<p>
 		<label>Finished on:</label>
-		<select name="read[year]"><?= html_options($years, @$book->read_year, '--') ?></select>
-		<select name="read[month]"><?= html_options($months, @$book->read_month, '--') ?></select>
+		<select name="finished[year]"><?= html_options($years, @$book->finished_year, '--') ?></select>
+		<select name="finished[month]"><?= html_options($months, @$book->finished_month, '--') ?></select>
+		<? if ($g_user->setting_rating): ?>
+			&nbsp; - &nbsp;
+			<select name="rating"><?= html_options(Book::$ratings, @$book->rating, '--') ?></select>
+		<? endif ?>
 	</p>
-	<p>
-		<label for="txt-summary">Summary:</label><br />
-		<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
-	</p>
-	<p>
-		<label for="txt-notes">Personal notes:</label><br />
-		<textarea name="notes" rows="3" placeholder="A little long, but I liked the part where they drank the wine."><?= html(@$book->notes) ?></textarea>
-	</p>
+	<? if ($g_user->setting_summary): ?>
+		<p>
+			<label for="txt-summary">Summary:</label><br />
+			<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
+		</p>
+	<? endif ?>
+	<? if ($g_user->setting_notes): ?>
+		<p>
+			<label for="txt-notes">Personal notes:</label><br />
+			<textarea name="notes" rows="3" placeholder="A little long, but I liked the part where they drank the wine."><?= html(@$book->notes) ?></textarea>
+		</p>
+	<? endif ?>
 
 	<input type="hidden" name="isbn10" value="<?= html(@$book->isbn10) ?>" />
 	<input type="hidden" name="isbn13" value="<?= html(@$book->isbn13) ?>" />
@@ -203,7 +207,7 @@ $results.addEventListener('click', function(e) {
 		var elements = document.querySelector('form').elements;
 		book.title && (elements.title.value = book.title);
 		book.author && (elements.author.value = book.author);
-		book.summary && (elements.summary.value = book.summary);
+		book.summary && elements.summary && (elements.summary.value = book.summary);
 		book.isbn10 && (elements.isbn10.value = book.isbn10);
 		book.isbn13 && (elements.isbn13.value = book.isbn13);
 	}
@@ -215,55 +219,48 @@ $search.addEventListener('keydown', function(e) {
 	// Disable ENTER in the search field
 	if (e.keyCode == 13) e.preventDefault();
 });
-$search.addEventListener('keyup', function(e) {
-	if (this.lastValue === undefined) {
-		this.lastValue = this.originalValue;
+$search.addEventListener('input', function(e) {
+	if (!this.value.trim()) {
+		$results.parentNode.classList.remove('results');
+		return;
 	}
 
-	if (this.value != this.lastValue) {
-		this.lastValue = this.value;
-		if (!this.value.trim()) {
-			$results.parentNode.classList.remove('results');
-			return;
-		}
+	searchTimer && clearTimeout(searchTimer);
+	searchTimer = setTimeout(function(q) {
+		lastXHR && lastXHR.abort();
 
-		searchTimer && clearTimeout(searchTimer);
-		searchTimer = setTimeout(function(q) {
-			lastXHR && lastXHR.abort();
-
-			$results.parentNode.classList.add('searching');
+		$results.parentNode.classList.add('searching');
 console.time('SEARCH "' + q + '"');
-			var xhr = new XMLHttpRequest;
-			lastXHR = xhr;
-			xhr.open('get', '?search=' + encodeURIComponent(q), true);
-			xhr.onload = function(e) {
-				var rsp = JSON.parse(this.responseText);
-				console.timeEnd('SEARCH "' + q + '"');
+		var xhr = new XMLHttpRequest;
+		lastXHR = xhr;
+		xhr.open('get', '?search=' + encodeURIComponent(q), true);
+		xhr.onload = function(e) {
+			var rsp = JSON.parse(this.responseText);
+			console.timeEnd('SEARCH "' + q + '"');
 console.log('RESULTS', rsp);
 
-				function enc(text) {
-					return text.replace(/</g, '&lt;');
-				}
+			function enc(text) {
+				return text.replace(/</g, '&lt;');
+			}
 
-				var html = '';
-				rsp.matches.forEach(function(book) {
-					books[book.id] = book;
-					html +=	'<li><a data-id="' + book.id + '" href>' +
-							'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-							'<div class="subtitle">' + enc(book.subtitle) + '</div>' +
-							'<div class="classification">' + enc(book.classification) + '</div>' +
-							'</a></li>';
-				});
+			var html = '';
+			rsp.matches.forEach(function(book) {
+				books[book.id] = book;
+				html +=	'<li><a data-id="' + book.id + '" href>' +
+						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
+						'<div class="subtitle">' + enc(book.subtitle) + '</div>' +
+						'<div class="classification">' + enc(book.classification) + '</div>' +
+						'</a></li>';
+			});
 
-				$results.dataset.numResults = rsp.matches.length;
+			$results.dataset.numResults = rsp.matches.length;
 
-				$results.innerHTML = html;
-				$results.parentNode.classList.add('results');
-				$results.parentNode.classList.remove('searching');
-			};
-			xhr.send();
-		}, 500, this.value.trim());
-	}
+			$results.innerHTML = html;
+			$results.parentNode.classList.add('results');
+			$results.parentNode.classList.remove('searching');
+		};
+		xhr.send();
+	}, 500, this.value.trim());
 });
 </script>
 

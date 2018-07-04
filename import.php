@@ -1,6 +1,10 @@
 <?php
 
+use rdx\bookr\Book;
+
 require 'inc.bootstrap.php';
+
+$keepCols = ['title', 'author', 'isbn', 'created', 'finished', 'rating', 'notes', 'labels'];
 
 if ( isset($_FILES['csv']) ) {
 	$file = (object) $_FILES['csv'];
@@ -12,19 +16,21 @@ if ( isset($_FILES['csv']) ) {
 	}
 
 	$data = file_get_contents($file->tmp_name);
-	$data = csv_read_doc($data);
+	$data = csv_read_doc($data, true, $keepCols);
 
 	$months = array_flip(array('', 'jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'));
 
-	$importId = md5(rand());
+	$importId = time();
 
 	$books = $errors = array();
 	$stats = array('dateless' => 0, 'imported' => 0);
 	foreach ($data as $line => $row) {
 		$book = array(
+			'user_id' => $g_user->id,
 			'title' => trim(@$row['title'], ' .'),
 			'author' => trim(@$row['author'], ' .'),
 			'notes' => trim(@$row['notes']),
+			'rating' => (int) trim(@$row['rating']) ?: null,
 			'created' => time(),
 			'import' => $importId,
 		);
@@ -44,9 +50,26 @@ if ( isset($_FILES['csv']) ) {
 			$book['author'] = trim($parts[1]) . ' ' . trim($parts[0]);
 		}
 
-		// ADDED
+		// ISBN
+		if ( $isbn = trim(@$row['isbn']) ) {
+			if ( strlen($isbn) >= 12 ) {
+				$book['isbn13'] = $isbn;
+			}
+			else {
+				$book['isbn10'] = $isbn;
+			}
+		}
+
+		// CREATED
+		if ( $created = trim(@$row['created']) ) {
+			if ( $utc = strtotime($created) ) {
+				$book['created'] = $utc;
+			}
+		}
+
+		// FINISHED
 		$year = $month = 0;
-		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9-]#', ' ', strtolower($row['added']))));
+		$date = preg_replace('# {2,}#', ' ', trim(preg_replace('#[^a-z0-9-]#', ' ', strtolower(@$row['finished']))));
 		if ( !$date ) {
 			// No date is fine
 			$stats['dateless']++;
@@ -65,17 +88,19 @@ if ( isset($_FILES['csv']) ) {
 			$year = $match[2];
 			$mon = substr($match[1], 0, 3);
 			if ( !isset($months[$mon]) ) {
-				$errors[] = "[$line] I can't read the month in this date: " . $row['added'] . ".";
+				$errors[] = "[$line] I can't read the month in this date: " . $row['finished'] . ".";
 				continue;
 			}
 			$month = $months[$mon];
 		}
 		else {
 			// Unsupported date format
-			$errors[] = "[$line] I can't read this date: " . $row['added'] . ".";
+			$errors[] = "[$line] I can't read this date: " . $row['finished'] . ".";
 			continue;
 		}
-		$book['read'] = str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-00';
+		$book['finished'] = $year ? str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-00' : null;
+
+		// @todo LABELS
 
 		$stats['imported']++;
 
@@ -90,13 +115,13 @@ if ( isset($_FILES['csv']) ) {
 
 	$db->begin();
 	foreach ($books as $book) {
-		$db->insert('books', $book);
+		Book::insert($book);
 	}
 	$db->commit();
 
 	$msg = array(
 		$stats['imported'] . " books imported",
-		$stats['dateless'] . " books without added",
+		$stats['dateless'] . " books without finished",
 		"Import ID: " . $importId,
 	);
 	do_redirect('index', array('msg' => $msg));
@@ -104,7 +129,7 @@ if ( isset($_FILES['csv']) ) {
 }
 
 else if ( isset($_GET['undo']) ) {
-	$db->delete('books', array('import' => (string)$_GET['undo']));
+	$db->delete('books', ['user_id' => $g_user->id, 'import' => $_GET['undo']]);
 	$num = $db->affected_rows();
 
 	$msg = "Deleted $num books.";
@@ -114,17 +139,18 @@ else if ( isset($_GET['undo']) ) {
 
 include 'tpl.header.php';
 
-$imports = $db->fetch('
-	SELECT import, COUNT(1) AS num, created
+$imports = $db->fetch("
+	SELECT import, COUNT(1) AS num
 	FROM books
+	WHERE user_id = ? AND import IS NOT NULL
 	GROUP BY import
-	ORDER BY created DESC
-')->all();
+	ORDER BY import DESC
+", [$g_user->id])->all();
 
 ?>
 <h1>Import books</h1>
 
-<p>Upload a CSV with columns: <code>title, author, added, notes</code>.</p>
+<p>Upload a CSV with columns: <code><?= implode(', ', $keepCols) ?></code>.</p>
 
 <form action method="post" enctype="multipart/form-data">
 	<p>CSV: <input type="file" name="csv" /></p>
@@ -137,7 +163,6 @@ $imports = $db->fetch('
 <table border="1" cellpadding="6">
 	<thead>
 		<tr>
-			<th>ID</th>
 			<th>Date</th>
 			<th>Imported</th>
 			<th>Undo</th>
@@ -146,14 +171,17 @@ $imports = $db->fetch('
 	<tbody>
 		<? foreach ($imports as $import): ?>
 			<tr>
-				<td><?= html($import->import) ?></td>
-				<td><?= date(FORMAT_DATETIME, $import->created) ?></td>
+				<td><?= date(FORMAT_DATETIME, $import->import) ?></td>
 				<td><?= $import->num ?> books</td>
 				<td><a href="<?= get_url('import', array('undo' => $import->import)) ?>" onclick="return confirm('You sure?')">delete all</a></td>
 			</tr>
 		<? endforeach ?>
 	</tbody>
 </table>
+
+<h2>Export books</h2>
+
+<button onclick="location = '<?= get_url('export') ?>'">Download all <?= Book::count('1') ?></button>
 
 <?php
 

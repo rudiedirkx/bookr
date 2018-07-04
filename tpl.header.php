@@ -5,7 +5,7 @@
 	<meta charset="utf-8" />
 	<title>Bookr</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="stylesheet" type="text/css" href="/style.css" />
+	<link rel="stylesheet" type="text/css" href="<?= html_asset('style.css') ?>" />
 </head>
 
 <body>
@@ -14,7 +14,6 @@
 	<a href="index.php">Library</a> |
 	<a href="form.php">Add</a> |
 	<a href="authors.php">Authors</a> |
-	<a href="export.php">Export</a> |
 	<a href="import.php">Import</a> |
 	<a href="settings.php">Settings</a>
 </p>

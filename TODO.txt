@@ -1,3 +1,0 @@
-* Add sorting on index
-* Add with WorldCat
-* Sync existing with WorldCat

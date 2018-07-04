@@ -36,8 +36,45 @@ button.delete {
 	color: green;
 }
 
-@media (max-width: 600px) {
-	.hide-on-mobile {
+tr.rating-1 td.rating {
+	background: red !important;
+}
+tr.rating-1 {
+	border-right: solid 5px red !important;
+}
+tr.rating-2 td.rating {
+	background: orange !important;
+}
+tr.rating-2 {
+	border-right: solid 5px orange !important;
+}
+tr.rating-3 td.rating {
+	background: yellow !important;
+}
+tr.rating-3 {
+	border-right: solid 5px yellow !important;
+}
+tr.rating-4 td.rating {
+	background: lime !important;
+}
+tr.rating-4 {
+	border-right: solid 5px lime !important;
+}
+tr.rating-5 td.rating {
+	background: green !important;
+	color: white !important;
+}
+tr.rating-5 {
+	border-right: solid 5px green !important;
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+	.hide-on-small {
+		display: none;
+	}
+}
+@media (orientation: landscape), (min-width: 600px) {
+	.hide-on-big {
 		display: none;
 	}
 }
@@ -54,8 +91,10 @@ tr.search-hide {
 	display: none;
 }
 th {
-	text-align: left;
 	background-color: #ddd;
+}
+th:not([align]) {
+	text-align: left;
 }
 th, td {
 	padding: 5px 10px;

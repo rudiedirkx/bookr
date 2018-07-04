@@ -5,7 +5,7 @@ require 'inc.bootstrap.php';
 if ( isset($_POST['rename']) ) {
 	$updated = 0;
 	foreach ($_POST['rename'] as $target => $sources) {
-		$db->update('books', array('author' => $target), array('user_id' => $g_user->id, 'author' => $sources));
+		$db->update('books', ['author' => $target], ['user_id' => $g_user->id, 'author' => $sources]);
 		$updated += $db->affected_rows();
 	}
 
