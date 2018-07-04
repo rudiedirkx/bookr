@@ -1,15 +1,20 @@
 <?php
 
+use rdx\bookr\Book;
+
 require 'inc.bootstrap.php';
 
 include 'tpl.header.php';
 
-$books = $db->select('books', '1 ORDER BY id DESC')->all();
+$books = Book::all('user_id = ? ORDER BY id DESC', [$g_user->id]);
 
 ?>
 <h1>Your books (<?= count($books) ?>)</h1>
 
-<p>Search <em>Author</em> &amp; <em>Title</em>: <input type="search" id="search" placeholder="cabin" autocomplete="off" /></p>
+<p>
+	Search <em>Author</em> &amp; <em>Title</em>:
+	<input type="search" id="search" placeholder="cabin" autocomplete="off" />
+</p>
 
 <table>
 	<thead>

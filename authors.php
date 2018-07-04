@@ -5,7 +5,7 @@ require 'inc.bootstrap.php';
 if ( isset($_POST['rename']) ) {
 	$updated = 0;
 	foreach ($_POST['rename'] as $target => $sources) {
-		$db->update('books', array('author' => $target), array('author' => $sources));
+		$db->update('books', array('author' => $target), array('user_id' => $g_user->id, 'author' => $sources));
 		$updated += $db->affected_rows();
 	}
 
@@ -15,7 +15,7 @@ if ( isset($_POST['rename']) ) {
 
 include 'tpl.header.php';
 
-$authors = $db->select_fields_numeric('books', 'author', '1');
+$authors = $db->select_fields_numeric('books', 'author', ['user_id' => $g_user->id]);
 $authors = array_filter($authors);
 natcasesort($authors);
 

@@ -15,7 +15,8 @@
 	<a href="form.php">Add</a> |
 	<a href="authors.php">Authors</a> |
 	<a href="export.php">Export</a> |
-	<a href="import.php">Import</a>
+	<a href="import.php">Import</a> |
+	<a href="settings.php">Settings</a>
 </p>
 
 <? if (@$_GET['msg']): ?>

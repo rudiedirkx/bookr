@@ -1,5 +1,11 @@
 <?php
 
+function do_auth() {
+	header('WWW-Authenticate: Basic realm="Bookr login"');
+	echo "Bookr login";
+	exit;
+}
+
 function csv_escape( $val ) {
 	return str_replace('"', '""', $val);
 }
@@ -58,7 +64,7 @@ function html_options( $options, $selected = null, $empty = '', $datalist = fals
 }
 
 function get_date( $date ) {
-	$components = array_map('intval', explode('-', $date));
+	$components = $date ? array_map('intval', explode('-', $date)) : [0, 0];
 
 	// With month
 	if ( $components[1] ) {

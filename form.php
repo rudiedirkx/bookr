@@ -1,14 +1,16 @@
 <?php
 
+use rdx\bookr\Book;
+
 require 'inc.bootstrap.php';
 
 $id = @$_GET['id'];
-$book = $id ? $db->select('books', compact('id'), array(), 'Book')->first() : null;
+$book = $id ? Book::first(['id' => $id, 'user_id' => $g_user->id]) : null;
 
 $_action = @$_POST['_action'] ?: 'save';
 
 // DELETE
-if ( $id && $_action == 'delete' ) {
+if ( $book && $_action == 'delete' ) {
 	$db->delete('books', compact('id'));
 
 	do_redirect('index');
@@ -24,24 +26,27 @@ else if ( isset($_POST['title'], $_POST['author'], $_POST['read']) ) {
 		'notes' => trim($_POST['notes']),
 	);
 
-	$data['read'] = implode('-', array(
-		str_pad((int)$_POST['read']['year'] ?: '0', 4, '0', STR_PAD_LEFT),
-		str_pad((int)$_POST['read']['month'] ?: '0', 2, '0', STR_PAD_LEFT),
+	$year = (int)$_POST['read']['year'];
+	$month = (int)$_POST['read']['month'];
+	$data['read'] = $year ? implode('-', array(
+		str_pad($year ?: '0', 4, '0', STR_PAD_LEFT),
+		str_pad($month ?: '0', 2, '0', STR_PAD_LEFT),
 		'00',
-	));
+	)) : null;
 
-	if ( $id ) {
+	if ( $book ) {
 		// Add ISBNs if they were posted
 		isset($_POST['isbn10']) && $data['isbn10'] = $_POST['isbn10'];
 		isset($_POST['isbn13']) && $data['isbn13'] = $_POST['isbn13'];
 
 		$data['updated'] = time();
-		$db->update('books', $data, compact('id'));
+
+		$book->update($data);
 	}
 	else {
+		$data['user_id'] = $g_user->id;
 		$data['created'] = time();
-		$db->insert('books', $data);
-		$id = $db->insert_id();
+		$id = Book::insert($data);
 	}
 
 	if ( !empty($_POST['another']) ) {
@@ -176,7 +181,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	<p>
 		<button class="submit" name="_action" value="save">Save</button>
 		&nbsp;
-		<? if ($id): ?>
+		<? if ($book): ?>
 			<button class="delete" name="_action" value="delete">Delete</button>
 		<? else: ?>
 			<label><input type="checkbox" name="another" checked /> Add another book</label>

@@ -3,13 +3,15 @@
     "description": "Very simple book management.",
     "type": "project",
     "require": {
-        "rdx/db": "^1.4"
+        "rdx/db": "^1.7"
     },
     "autoload": {
         "files": [
-            "inc.book.php",
             "inc.functions.php"
-        ]
+        ],
+        "psr-4": {
+            "rdx\\bookr\\": "src/"
+        }
     },
     "license": "MIT",
     "authors": [
