@@ -147,7 +147,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 ?>
 <h1><?= $book ? 'Edit' : 'Add' ?> book</h1>
 
-<form action method="post">
+<form action method="post" class="book-form">
 	<div class="p search">
 		<label for="txt-search">Search:</label>
 		<input id="search" type="search" autofocus autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
@@ -183,12 +183,14 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<a href="<?= get_url('labels') ?>">manage labels</a>
 		</p>
 	<? endif ?>
-	<? if ($g_user->setting_summary): ?>
-		<p>
-			<label for="txt-summary">Summary:</label><br />
+	<p>
+		<label for="txt-summary">Summary:</label><br />
+		<? if ($g_user->setting_summary): ?>
 			<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
-		</p>
-	<? endif ?>
+		<? else: ?>
+			<output name="summary"></output>
+		<? endif ?>
+	</p>
 	<? if ($g_user->setting_notes): ?>
 		<p>
 			<label for="txt-notes">Personal notes:</label><br />

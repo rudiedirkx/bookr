@@ -161,6 +161,14 @@ textarea {
 	max-width: 100%;
 }
 
+.book-form output {
+	display: inline-block;
+	max-width: 37.25em;
+}
+.book-form output:empty {
+	display: none;
+}
+
 .p.search {
 	margin-left: -10px;
 	margin-right: -10px;
