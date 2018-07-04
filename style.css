@@ -135,8 +135,7 @@ div.expandable:not(.expanded) {
  */
 
 label {
-	display: inline-block;
-	min-width: 7em;
+	display: block;
 }
 input:not([type="checkbox"]):not([type="radio"]) {
 	width: 30em;
@@ -227,6 +226,11 @@ textarea {
 }
 
 @media (min-width: 600px) {
+	label {
+		display: inline-block;
+		min-width: 7em;
+	}
+
 	.p.search input {
 		width: 28em;
 	}

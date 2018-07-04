@@ -6,7 +6,7 @@ class Book extends Model {
 
 	static public $_table = 'books';
 
-	static public $ratings = [5 => 'Great', 4 => 'Good', 3 => 'Okay', 2 => 'Bad', 1 => 'Horrible'];
+	static public $ratings = [5 => 'Great 5/5', 4 => 'Good 4/5', 3 => 'Okay 3/5', 2 => 'Bad 2/5', 1 => 'Horrible 1/5'];
 
 
 
