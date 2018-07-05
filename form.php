@@ -31,7 +31,15 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	isset($_POST['notes']) and $data['notes'] = trim($_POST['notes']);
 	isset($_POST['isbn10']) and $data['isbn10'] = trim($_POST['isbn10']);
 	isset($_POST['isbn13']) and $data['isbn13'] = trim($_POST['isbn13']);
-	isset($_POST['label_ids']) and $data['label_ids'] = array_filter($_POST['label_ids']);
+
+	if ( $g_user->setting_labels ) {
+		if ( isset($_POST['labels']) ) {
+			$data['label_ids'] = array_merge(...array_map('array_filter', $_POST['labels']));
+		}
+		else {
+			$data['label_ids'] = [];
+		}
+	}
 
 	$year = (int) $_POST['finished']['year'];
 	$month = (int) $_POST['finished']['month'];
@@ -61,6 +69,8 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 elseif ( isset($_GET['search']) ) {
 	$query = trim($_GET['search']);
 	$data = array('query' => $query, 'matches' => array());
+
+	header('Content-type: text/plain; charset=utf-8');
 
 	if ( BOL_COM_API_KEY ) {
 		$params = array(
@@ -99,7 +109,7 @@ elseif ( isset($_GET['search']) ) {
 
 				$isbn10 = $isbn13 = '';
 				foreach ( (array) @$product['attributeGroups'] as $group ) {
-					foreach ( $group['attributes'] as $attribute ) {
+					foreach ( (array) @$group['attributes'] as $attribute ) {
 						if ( strtolower($attribute['label']) == 'isbn10' ) {
 							$isbn10 = $attribute['value'];
 						}
@@ -124,18 +134,27 @@ elseif ( isset($_GET['search']) ) {
 		}
 	}
 
-	header('Content-type: text/json; charset=utf-8');
 	echo json_encode($data);
 	exit;
 }
 
 include 'tpl.header.php';
 
-$labels = Label::allSorted();
-$labelOptions = Model::options($labels);
-$defaultLabelIds = array_keys(array_filter($labels, function(Label $label) {
-	return $label->default_on;
-}));
+if ($g_user->setting_labels) {
+	$labels = Label::allSorted();
+	$defaultLabelIds = array_keys(array_filter($labels, function(Label $label) {
+		return $label->default_on;
+	}));
+	$labelChecked = function(Label $label) use ($book, $defaultLabelIds) {
+		return in_array($label->id, $book ? $book->label_ids : $defaultLabelIds) ? 'checked' : '';
+	};
+	$categories = array_reduce($labels, function(array $list, Label $label) {
+		return $list + [$label->category_id => $label->category];
+	}, []);
+}
+else {
+	$categories = [];
+}
 
 $authors = $db->select_fields('books', 'author, author', 'user_id = ? ORDER BY author', [$g_user->id]);
 
@@ -160,11 +179,11 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 
 	<p>
 		<label for="txt-title">Title:</label>
-		<input name="title" value="<?= html(@$book->title) ?>" required placeholder="The holy bible" />
+		<input name="title" value="<?= html(@$book->title) ?>" required />
 	</p>
 	<p>
 		<label for="txt-author">Author:</label>
-		<input name="author" value="<?= html(@$book->author) ?>" required placeholder="Jesus Christ" list="authors" />
+		<input name="author" value="<?= html(@$book->author) ?>" required list="authors" />
 	</p>
 	<p>
 		<label>Finished on:</label>
@@ -175,18 +194,34 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<select name="rating"><?= html_options(Book::$ratings, @$book->rating, '--') ?></select>
 		<? endif ?>
 	</p>
-	<? if (count($labelOptions)): ?>
+	<? foreach ($categories as $category): ?>
 		<p>
-			<label>Labels:</label>
-			<select name="label_ids[]" multiple size="<?= count($labelOptions) ?>"><?= html_options($labelOptions, $book ? $book->label_ids : $defaultLabelIds) ?></select>
-			&nbsp;
-			<a href="<?= get_url('labels') ?>">manage labels</a>
+			<label>
+				<?= html($category) ?>:<br>
+				<? if (!$category->multiple && !$category->required): ?>
+					<input type="radio" name="labels[<?= $category->id ?>][]" value="0" />
+				<? endif ?>
+			</label>
+			<span class="form-widget">
+				<? foreach ($labels as $label): if ($label->category_id == $category->id): ?>
+					<label>
+						<input
+							type="<?= $category->multiple ? 'checkbox' : 'radio' ?>"
+							name="labels[<?= $category->id ?>][]"
+							value="<?= $label->id ?>"
+							<? if ($category->required): ?>required<? endif ?>
+							<?= $labelChecked($label) ?>
+						/>
+						<?= html($label) ?>
+					</label>
+				<? endif ?><? endforeach ?>
+			</span>
 		</p>
-	<? endif ?>
+	<? endforeach ?>
 	<? if ($g_user->setting_summary): ?>
 		<p>
 			<label for="txt-summary">Summary:</label><br />
-			<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
+			<textarea name="summary" rows="8"><?= html(@$book->summary) ?></textarea>
 		</p>
 	<? else: ?>
 		<p hidden>
@@ -197,7 +232,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	<? if ($g_user->setting_notes): ?>
 		<p>
 			<label for="txt-notes">Personal notes:</label><br />
-			<textarea name="notes" rows="3" placeholder="A little long, but I liked the part where they drank the wine."><?= html(@$book->notes) ?></textarea>
+			<textarea name="notes" rows="3"><?= html(@$book->notes) ?></textarea>
 		</p>
 	<? endif ?>
 
@@ -210,8 +245,10 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<? if ($book): ?>
 			<button class="delete" name="_action" value="delete">Delete</button>
 		<? else: ?>
-			<label><input type="checkbox" name="another" checked /> Add another book</label>
+			<label><input type="checkbox" name="another" /> Add another book</label>
 		<? endif ?>
+		&nbsp;
+		<a href="<?= get_url('labels') ?>">manage labels</a>
 	</p>
 </form>
 

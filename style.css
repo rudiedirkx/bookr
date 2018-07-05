@@ -138,6 +138,16 @@ label {
 	display: block;
 	vertical-align: top;
 }
+.form-widget {
+	display: inline-block;
+}
+.form-widget label {
+	display: inline;
+}
+.form-widget label:after {
+	content: '\A';
+	white-space: pre;
+}
 input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
 	width: 30em;
 	max-width: 100%;

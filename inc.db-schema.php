@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 8,
+	'version' => 9,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -28,6 +28,7 @@ return [
 			'id' => ['pk' => true],
 			'user_id' => ['unsigned' => true, 'null' => false, 'references' => ['users', 'id']],
 			'name' => ['null' => false],
+			'show_in_list' => ['unsigned' => true, 'null' => false, 'default' => 0],
 			'required' => ['unsigned' => true, 'null' => false, 'default' => 0],
 			'multiple' => ['unsigned' => true, 'null' => false, 'default' => 0],
 			'weight' => ['type' => 'int', 'null' => false, 'default' => 0],
@@ -41,8 +42,8 @@ return [
 			'weight' => ['type' => 'int'],
 		],
 		'books_labels' => [
-			'book_id' => ['unsigned' => true, 'null' => false, 'references' => ['books', 'id']],
-			'label_id' => ['unsigned' => true, 'null' => false, 'references' => ['labels', 'id']],
+			'book_id' => ['unsigned' => true, 'null' => false, 'references' => ['books', 'id', 'cascade']],
+			'label_id' => ['unsigned' => true, 'null' => false, 'references' => ['labels', 'id', 'cascade']],
 		],
 	],
 ];

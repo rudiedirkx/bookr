@@ -17,6 +17,10 @@ class Book extends UserModel {
 		}
 	}
 
+	public function getLabelNamesForCategory( Category $category ) {
+		return Label::names($this->label_ids, $category);
+	}
+
 
 
 	protected function get_label_names() {

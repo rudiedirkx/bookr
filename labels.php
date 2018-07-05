@@ -12,10 +12,9 @@ $categories = Category::allSorted();
 
 if ( isset($_POST['categories']) ) {
 	foreach ( $_POST['categories'] as $id => $data ) {
-		$data += [
-			'required' => (int) !empty($data['required']),
-			'multiple' => (int) !empty($data['multiple']),
-		];
+		$data['show_in_list'] = (int) !empty($data['show_in_list']);
+		$data['required'] = (int) !empty($data['required']);
+		$data['multiple'] = (int) !empty($data['multiple']);
 		if ( $id && isset($categories[$id]) ) {
 			$category = $categories[$id];
 			$category->update($data);
@@ -63,7 +62,7 @@ $categories[] = new Category(['id' => 0]);
 			<tr>
 				<th>Name</th>
 				<th>Category</th>
-				<th>Default ON?</th>
+				<th>Default ON</th>
 				<th>Order</th>
 				<th align="right">Usage</th>
 			</tr>
@@ -91,8 +90,9 @@ $categories[] = new Category(['id' => 0]);
 		<thead>
 			<tr>
 				<th>Name</th>
-				<th>Required?</th>
-				<th>Multiple?</th>
+				<th>Show in list</th>
+				<th>Required</th>
+				<th>Multiple</th>
 				<th>Order</th>
 			</tr>
 		</thead>
@@ -100,6 +100,7 @@ $categories[] = new Category(['id' => 0]);
 			<? foreach ($categories as $category): ?>
 				<tr>
 					<td><input name="categories[<?= $category->id ?>][name]" value="<?= html($category->name) ?>" <? if ($category->id): ?>required<? endif ?> /></td>
+					<td><input type="checkbox" name="categories[<?= $category->id ?>][show_in_list]" <? if ($category->show_in_list): ?>checked<? endif ?> /></td>
 					<td><input type="checkbox" name="categories[<?= $category->id ?>][required]" <? if ($category->required): ?>checked<? endif ?> /></td>
 					<td><input type="checkbox" name="categories[<?= $category->id ?>][multiple]" <? if ($category->multiple): ?>checked<? endif ?> /></td>
 					<td><input type="number" name="categories[<?= $category->id ?>][weight]" value="<?= html($category->weight) ?>" <? if ($category->id): ?>required<? endif ?> /></td>
