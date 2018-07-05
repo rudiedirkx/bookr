@@ -21,10 +21,11 @@ if ( $book && $_action == 'delete' ) {
 }
 
 // SAVE
-elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
+elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished'], $_POST['pubyear']) ) {
 	$data = array(
 		'title' => trim($_POST['title']),
 		'author' => trim($_POST['author']),
+		'pubyear' => trim($_POST['pubyear']) ?: null,
 	);
 
 	isset($_POST['rating']) and $data['rating'] = (int) $_POST['rating'] ?: null;
@@ -168,6 +169,18 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			</span>
 		</p>
 	<? endforeach ?>
+	<p>
+		<label for="txt-pubyear">Publ. year:</label>
+		<input name="pubyear" value="<?= html($book->pubyear) ?>" type="number" class="pubyear" />
+	</p>
+	<p>
+		<label for="txt-isbn10">ISBN 10:</label>
+		<input name="isbn10" value="<?= html($book->isbn10) ?>" />
+	</p>
+	<p>
+		<label for="txt-isbn13">ISBN 13:</label>
+		<input name="isbn13" value="<?= html($book->isbn13) ?>" />
+	</p>
 	<? if ($g_user->setting_summary): ?>
 		<p>
 			<label for="txt-summary">Summary:</label><br />
@@ -185,9 +198,6 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<textarea name="notes" rows="3"><?= html(@$book->notes) ?></textarea>
 		</p>
 	<? endif ?>
-
-	<input type="hidden" name="isbn10" value="<?= html(@$book->isbn10) ?>" />
-	<input type="hidden" name="isbn13" value="<?= html(@$book->isbn13) ?>" />
 
 	<p>
 		<button class="submit" name="_action" value="save">Save</button>

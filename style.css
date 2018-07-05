@@ -175,6 +175,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
 input[type="number"] {
 	width: 2em;
 	text-align: center;
+	-moz-appearance: textfield;
 }
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -182,8 +183,8 @@ input[type="number"]::-webkit-outer-spin-button {
 	appearance: none;
 	margin: 0;
 }
-input[type="number"] {
-	-moz-appearance: textfield;
+input.pubyear {
+	width: 4em;
 }
 textarea {
 	width: 37.25em;

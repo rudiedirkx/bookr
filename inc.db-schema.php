@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 9,
+	'version' => 10,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -16,6 +16,7 @@ return [
 			'author' => ['null' => false],
 			'finished' => ['type' => 'date', 'null' => true, 'default' => null],
 			'summary' => ['default' => ''],
+			'pubyear' => ['type' => 'number', 'null' => true, 'default' => null],
 			'notes' => ['default' => ''],
 			'added' => ['unsigned' => true],
 			'updated' => ['unsigned' => true],
