@@ -17,7 +17,7 @@ return [
 			'finished' => ['type' => 'date', 'null' => true, 'default' => null],
 			'summary' => ['default' => ''],
 			'notes' => ['default' => ''],
-			'created' => ['unsigned' => true],
+			'added' => ['unsigned' => true],
 			'updated' => ['unsigned' => true],
 			'import' => ['unsigned' => true, 'null' => true, 'default' => null],
 			'isbn10' => ['null' => true, 'default' => null],

@@ -46,7 +46,7 @@ class Book extends UserModel {
 
 
 	public function update( $data ) {
-		isset($data['updated']) || $data['updated'] = time();
+		isset($data['updated']) or $data['updated'] = time();
 
 		$labelIds = $data['label_ids'] ?? null;
 		unset($data['label_ids']);
@@ -61,7 +61,7 @@ class Book extends UserModel {
 	}
 
 	static function insert( array $data ) {
-		isset($data['created']) || $data['created'] = time();
+		isset($data['added']) or $data['added'] = time();
 
 		$labelIds = $data['label_ids'] ?? null;
 		unset($data['label_ids']);

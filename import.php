@@ -5,7 +5,7 @@ use rdx\bookr\Label;
 
 require 'inc.bootstrap.php';
 
-$keepCols = ['title', 'author', 'isbn', 'created', 'finished', 'rating', 'notes', 'labels'];
+$keepCols = ['title', 'author', 'isbn', 'added', 'finished', 'rating', 'notes', 'labels'];
 
 if ( isset($_FILES['csv']) ) {
 	$file = (object) $_FILES['csv'];
@@ -37,7 +37,7 @@ if ( isset($_FILES['csv']) ) {
 			'author' => trim(@$row['author'], ' .'),
 			'notes' => trim(@$row['notes']),
 			'rating' => (int) trim(@$row['rating']) ?: null,
-			'created' => time(),
+			'added' => time(),
 			'import' => $importId,
 		);
 
@@ -66,10 +66,10 @@ if ( isset($_FILES['csv']) ) {
 			}
 		}
 
-		// CREATED
-		if ( $created = trim(@$row['created']) ) {
-			if ( $utc = strtotime($created) ) {
-				$book['created'] = $utc;
+		// ADDED
+		if ( $added = trim(@$row['added']) ) {
+			if ( $utc = strtotime($added) ) {
+				$book['added'] = $utc;
 			}
 		}
 

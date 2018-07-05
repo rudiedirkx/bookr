@@ -22,7 +22,7 @@ else {
 	$categories = [];
 }
 
-$books = Book::all('1 ORDER BY id DESC');
+$books = Book::all('1 ORDER BY added DESC, id DESC');
 
 ?>
 <h1>
@@ -40,6 +40,7 @@ $books = Book::all('1 ORDER BY id DESC');
 		<tr>
 			<th>Author</th>
 			<th>Title</th>
+			<th class="hide-on-small" align="right">Added</th>
 			<th class="hide-on-small" align="right">Finished</th>
 			<? if ($g_user->setting_rating): ?>
 				<th class="hide-on-small">Rating</th>
@@ -67,6 +68,7 @@ $books = Book::all('1 ORDER BY id DESC');
 			<tr class="rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-labels="<?= html(json_encode($book->label_ids)) ?>">
 				<td><?= html($book->author) ?></td>
 				<td><a href="<?= get_url('form', array('id' => $book->id)) ?>"><?= html($book->title) ?></a></td>
+				<td class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
 				<td class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>
 				<? if ($g_user->setting_rating): ?>
 					<td class="hide-on-small rating" align="center" nowrap><?= $book->rating ?></td>
@@ -91,10 +93,10 @@ $books = Book::all('1 ORDER BY id DESC');
 
 <script>
 var $filterText = document.querySelector('#filter-text');
-var $filterLabel = document.querySelector('#filter-label')
+var $filterLabel = document.querySelector('#filter-label');
 
 document.addEventListener('keyup', function(e) {
-	if ( e.code == 'Slash' ) {
+	if ( e.code == 'Slash' && document.activeElement.matches('body, a, button') ) {
 		$filterText.focus();
 	}
 });
