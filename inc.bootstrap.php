@@ -1,9 +1,10 @@
 <?php
 
 use rdx\bookr\User;
+use rdx\bookr\search\Provider;
 
-require 'env.php';
 require 'vendor/autoload.php';
+require 'env.php';
 
 const FORMAT_DATETIME = "j M 'y H:i";
 const FORMAT_DATE = "j M 'y";
@@ -18,11 +19,10 @@ db_generic_model::$_db = $db;
 
 $db->ensureSchema(require 'inc.db-schema.php');
 
-if ( !isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) ) {
-	do_auth();
-}
-
-$g_user = User::fromAuth($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+$g_user = User::fromAuth(@$_SERVER['PHP_AUTH_USER'], @$_SERVER['PHP_AUTH_PW']);
 if ( !$g_user ) {
 	do_auth();
 }
+
+/** @var Provider */
+$g_searchers = $g_searchers ?? [];

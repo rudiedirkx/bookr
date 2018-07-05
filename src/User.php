@@ -7,9 +7,11 @@ class User extends Model {
 	static public $_table = 'users';
 
 	static public function fromAuth( $username, $password ) {
-		$user = self::first(['username' => $username]);
-		if ( $user && password_verify($password, $user->password) ) {
-			return $user;
+		if ( $username && $password ) {
+			$user = self::first(['username' => $username]);
+			if ( $user && password_verify($password, $user->password) ) {
+				return $user;
+			}
 		}
 	}
 

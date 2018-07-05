@@ -1,6 +1,7 @@
 <?php
 
 use rdx\bookr\Book;
+use rdx\bookr\Category;
 use rdx\bookr\Label;
 use rdx\bookr\Model;
 
@@ -29,8 +30,8 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	isset($_POST['rating']) and $data['rating'] = (int) $_POST['rating'] ?: null;
 	isset($_POST['summary']) and $data['summary'] = trim($_POST['summary']);
 	isset($_POST['notes']) and $data['notes'] = trim($_POST['notes']);
-	isset($_POST['isbn10']) and $data['isbn10'] = trim($_POST['isbn10']);
-	isset($_POST['isbn13']) and $data['isbn13'] = trim($_POST['isbn13']);
+	empty($_POST['isbn10']) or $data['isbn10'] = trim($_POST['isbn10']);
+	empty($_POST['isbn13']) or $data['isbn13'] = trim($_POST['isbn13']);
 
 	if ( $g_user->setting_labels ) {
 		if ( isset($_POST['labels']) ) {
@@ -72,66 +73,8 @@ elseif ( isset($_GET['search']) ) {
 
 	header('Content-type: text/plain; charset=utf-8');
 
-	if ( BOL_COM_API_KEY ) {
-		$params = array(
-			'format' => 'json',
-			'apikey' => BOL_COM_API_KEY,
-			'sort' => 'rankasc',
-			'includeattributes' => 'true',
-			'q' => $query,
-		);
-		$url = 'https://api.bol.com/catalog/v4/search?' . http_build_query($params);
-
-		$_time = microtime(1);
-		$json = file_get_contents($url);
-		$data['time'] = microtime(1) - $_time;
-
-		$response = json_decode($json, true);
-		$products = (array) @$response['products'];
-
-		$had = array();
-		foreach ( $products as $product ) {
-			if ( $product['gpc'] == 'book' && !empty($product['title']) && !empty($product['specsTag']) ) {
-				$key = trim(mb_strtolower($product['specsTag'] . ':' . $product['title']), '.! )(');
-				if ( isset($had[$key]) ) {
-					continue;
-				}
-				$had[$key] = 1;
-
-				$imageUrl = '';
-				foreach ( (array) @$product['images'] as $image ) {
-					$imageUrl = $image['url'];
-
-					if ( $image['key'] == 'M' ) {
-						break;
-					}
-				}
-
-				$isbn10 = $isbn13 = '';
-				foreach ( (array) @$product['attributeGroups'] as $group ) {
-					foreach ( (array) @$group['attributes'] as $attribute ) {
-						if ( strtolower($attribute['label']) == 'isbn10' ) {
-							$isbn10 = $attribute['value'];
-						}
-						elseif ( strtolower($attribute['label']) == 'isbn13' ) {
-							$isbn13 = $attribute['value'];
-						}
-					}
-				}
-
-				$data['matches'][] = array(
-					'id' => trim($product['id']),
-					'title' => trim($product['title']),
-					'subtitle' => trim(@$product['subtitle'] ?: ''),
-					'author' => trim(@$product['specsTag'] ?: ''),
-					'classification' => trim(@$product['summary'] ?: ''),
-					'summary' => trim(preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'] ?: '')),
-					'image' => trim($imageUrl),
-					'isbn10' => trim($isbn10),
-					'isbn13' => trim($isbn13),
-				);
-			}
-		}
+	foreach ( $g_searchers as $searcher ) {
+		$data['matches'] = array_merge($data['matches'], $searcher->search($query));
 	}
 
 	echo json_encode($data);
@@ -141,6 +84,7 @@ elseif ( isset($_GET['search']) ) {
 include 'tpl.header.php';
 
 if ($g_user->setting_labels) {
+	Category::all('1');
 	$labels = Label::allSorted();
 	$defaultLabelIds = array_keys(array_filter($labels, function(Label $label) {
 		return $label->default_on;
@@ -156,7 +100,7 @@ else {
 	$categories = [];
 }
 
-$authors = $db->select_fields('books', 'author, author', 'user_id = ? ORDER BY author', [$g_user->id]);
+$authors = $db->select_fields('books', 'author, author', 'user_id = ? GROUP BY author', [$g_user->id]);
 
 $years = array_combine(range(date('Y'), 1990), range(date('Y'), 1990));
 $months = array_combine(range(1, 12), array_map(function($m) {
@@ -313,11 +257,11 @@ console.log('RESULTS', rsp);
 
 			var html = '';
 			rsp.matches.forEach(function(book) {
-				books[book.id] = book;
-				html +=	'<li><a data-id="' + book.id + '" href>' +
+				books[book.source + book.id] = book;
+				html +=	'<li><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-						'<div class="subtitle">' + enc(book.subtitle) + '</div>' +
-						'<div class="classification">' + enc(book.classification) + '</div>' +
+						( book.subtitle ? '<div class="subtitle">' + enc(book.subtitle) + '</div>' : '' ) +
+						( !book.subtitle && book.classification ? '<div class="classification">' + enc(book.classification) + '</div>' : '' ) +
 						'</a></li>';
 			});
 
