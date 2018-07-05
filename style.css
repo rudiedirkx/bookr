@@ -6,7 +6,7 @@ html, body {
 	padding: 0;
 }
 body, input, select, option, textarea {
-	font-family: Arial;
+	font-family: sans-serif;
 	font-size: 16px;
 }
 body {
@@ -35,6 +35,25 @@ button.delete {
 	font-weight: bold;
 	color: green;
 }
+
+/**
+ * List sorting
+ */
+
+th[data-sort] {
+	cursor: pointer;
+	white-space: nowrap;
+}
+th[data-sort]:after {
+	content: " ⇕";
+}
+th[data-sort]:not([data-sorting]):after {
+	color: #bbb;
+}
+
+/**
+ * List ratings
+ */
 
 tr.rating-1 td.rating {
 	background: red !important;

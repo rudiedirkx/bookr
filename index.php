@@ -36,14 +36,14 @@ $books = Book::all('1 ORDER BY added DESC, id DESC');
 </p>
 
 <table>
-	<thead>
+	<thead id="sorters">
 		<tr>
-			<th>Author</th>
+			<th data-sort="author">Author</th>
 			<th>Title</th>
-			<th class="hide-on-small" align="right">Added</th>
-			<th class="hide-on-small" align="right">Finished</th>
+			<th data-sort="added" data-desc data-sorting="desc" class="hide-on-small" align="right">Added</th>
+			<th data-sort="finished" data-desc class="hide-on-small" align="right">Finished</th>
 			<? if ($g_user->setting_rating): ?>
-				<th class="hide-on-small">Rating</th>
+				<th data-sort="rating" data-desc class="hide-on-small">Rating</th>
 			<? endif ?>
 			<? if ($g_user->setting_summary || $g_user->setting_notes): ?>
 				<th class="hide-on-small">
@@ -65,13 +65,13 @@ $books = Book::all('1 ORDER BY added DESC, id DESC');
 	</thead>
 	<tbody id="body">
 		<? foreach ($books as $book): ?>
-			<tr class="rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-labels="<?= html(json_encode($book->label_ids)) ?>">
-				<td><?= html($book->author) ?></td>
+			<tr class="book rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-id="<?= $book->id ?>" data-labels="<?= html(json_encode($book->label_ids)) ?>">
+				<td data-sort="author"><?= html($book->author) ?></td>
 				<td><a href="<?= get_url('form', array('id' => $book->id)) ?>"><?= html($book->title) ?></a></td>
-				<td class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
-				<td class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>
+				<td data-sort="added" data-value="<?= date('Y-m-d', $book->added) ?>" class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
+				<td data-sort="finished" data-value="<?= $book->finished ?>" class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>
 				<? if ($g_user->setting_rating): ?>
-					<td class="hide-on-small rating" align="center" nowrap><?= $book->rating ?></td>
+					<td data-sort="rating" data-value="<?= $book->rating ?>" class="hide-on-small rating" align="center" nowrap><?= $book->rating ?></td>
 				<? endif ?>
 				<? if ($g_user->setting_summary || $g_user->setting_notes): ?>
 					<td class="hide-on-small">
@@ -94,12 +94,65 @@ $books = Book::all('1 ORDER BY added DESC, id DESC');
 <script>
 var $filterText = document.querySelector('#filter-text');
 var $filterLabel = document.querySelector('#filter-label');
+var rows = [].slice.call(document.querySelectorAll('tr.book'));
+
+/**
+ * Focus text filter
+ */
 
 document.addEventListener('keyup', function(e) {
 	if ( e.code == 'Slash' && document.activeElement.matches('body, a, button') ) {
 		$filterText.focus();
 	}
 });
+
+/**
+ * Sorters
+ */
+
+document.querySelector('#sorters').addEventListener('click', function(e) {
+	var sorter = e.target.dataset.sort;
+	if ( !sorter ) return;
+
+	var newSort = e.target;
+	var prevSort = document.querySelector('[data-sorting]');
+	if (newSort == prevSort) {
+		newSort.dataset.sorting = newSort.dataset.sorting == 'asc' ? 'desc' : 'asc';
+	}
+	else {
+		delete prevSort.dataset.sorting;
+		newSort.dataset.sorting = newSort.dataset.desc == null ? 'asc' : 'desc';
+	}
+	var desc = newSort.dataset.sorting == 'asc' ? 1 : -1;
+
+	console.time('Sorting rows');
+	rows.sort(function(a, b) {
+		var va = a.querySelector('td[data-sort="' + sorter + '"]');
+		va = va.dataset.value || va.textContent.trim();
+		var vb = b.querySelector('td[data-sort="' + sorter + '"]');
+		vb = vb.dataset.value || vb.textContent.trim();
+		var idDir = Number(a.dataset.id) - Number(b.dataset.id);
+		var ea = va === '';
+		var eb = vb === '';
+		if ( ea && eb ) return idDir;
+		if ( ea ) return 1;
+		if ( eb ) return -1;
+		var dir = va == vb ? idDir : va > vb ? 1 : -1;
+		return desc * dir;
+	});
+	console.timeEnd('Sorting rows');
+
+	console.time('Positioning rows');
+	var container = rows[0].parentNode;
+	for (var i = 0; i < rows.length; i++) {
+		container.appendChild(rows[i]);
+	}
+	console.timeEnd('Positioning rows');
+});
+
+/**
+ * Filters
+ */
 
 var trs = [].slice.call(document.querySelector('#body').rows);
 function filterRows() {
@@ -137,11 +190,19 @@ $filterLabel.addEventListener('change', function(e) {
 	filterRows();
 });
 
+/**
+ * Expandables
+ */
+
 document.addEventListener('click', function(e) {
 	if ( e.target.classList.contains('expandable') ) {
 		e.target.classList.toggle('expanded');
 	}
 });
+
+/**
+ * Scroll to hilite
+ */
 
 var hl = document.querySelector('tr.hilited');
 hl && hl.scrollIntoViewIfNeeded();
