@@ -59,7 +59,7 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished'], $_POST['pu
 	}
 
 	if ( !empty($_POST['another']) ) {
-		do_redirect('form');
+		do_redirect('form', ['another' => 1]);
 		exit;
 	}
 
@@ -128,7 +128,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	</p>
 	<p>
 		<label for="txt-author">Author:</label>
-		<input name="author" value="<?= html(@$book->author) ?>" required list="authors" />
+		<input name="author" value="<?= html(@$book->author) ?>" required list="authors" autocomplete="off" />
 	</p>
 	<? if ($book): ?>
 		<p>
@@ -175,11 +175,11 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	</p>
 	<p>
 		<label for="txt-isbn10">ISBN 10:</label>
-		<input name="isbn10" value="<?= html($book->isbn10) ?>" />
+		<input name="isbn10" value="<?= html(@$book->isbn10) ?>" />
 	</p>
 	<p>
 		<label for="txt-isbn13">ISBN 13:</label>
-		<input name="isbn13" value="<?= html($book->isbn13) ?>" />
+		<input name="isbn13" value="<?= html(@$book->isbn13) ?>" />
 	</p>
 	<? if ($g_user->setting_summary): ?>
 		<p>
@@ -205,7 +205,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<? if ($book): ?>
 			<button class="delete" name="_action" value="delete">Delete</button>
 		<? else: ?>
-			<label><input type="checkbox" name="another" /> Add another book</label>
+			<label><input type="checkbox" name="another" <? if ( !empty($_GET['another']) ): ?>checked<? endif ?> /> Add another book</label>
 		<? endif ?>
 		&nbsp;
 		<a href="<?= get_url('labels') ?>">manage labels</a>
