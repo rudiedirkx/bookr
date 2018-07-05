@@ -79,10 +79,10 @@ document.addEventListener('keyup', function(e) {
 
 var trs = [].slice.call(document.querySelector('#body').rows);
 document.querySelector('#search').addEventListener('keyup', function(e) {
-	var q = this.value.toLowerCase();
+	var q = this.value.toLowerCase().trim();
 	trs.forEach(function(tr) {
 		if ( tr._searchText == null ) {
-			tr._searchText = (tr.cells[0].textContent + ' ' + tr.cells[1].textContent).toLowerCase();
+			tr._searchText = (tr.cells[0].textContent + ' ' + tr.cells[1].textContent).toLowerCase().trim();
 		}
 		tr.classList.toggle('search-hide', tr._searchText.indexOf(q) == -1);
 	});
