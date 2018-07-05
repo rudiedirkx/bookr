@@ -183,14 +183,17 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<a href="<?= get_url('labels') ?>">manage labels</a>
 		</p>
 	<? endif ?>
-	<p>
-		<label for="txt-summary">Summary:</label><br />
-		<? if ($g_user->setting_summary): ?>
+	<? if ($g_user->setting_summary): ?>
+		<p>
+			<label for="txt-summary">Summary:</label><br />
 			<textarea name="summary" rows="8" placeholder="Jesus is born, then he dies, then he undies, now we wait."><?= html(@$book->summary) ?></textarea>
-		<? else: ?>
+		</p>
+	<? else: ?>
+		<p hidden>
+			<label for="txt-summary">Summary:</label><br />
 			<output name="summary"></output>
-		<? endif ?>
-	</p>
+		</p>
+	<? endif ?>
 	<? if ($g_user->setting_notes): ?>
 		<p>
 			<label for="txt-notes">Personal notes:</label><br />
@@ -226,7 +229,10 @@ $results.addEventListener('click', function(e) {
 		var elements = document.querySelector('form').elements;
 		book.title && (elements.title.value = book.title);
 		book.author && (elements.author.value = book.author);
-		book.summary && elements.summary && (elements.summary.value = book.summary);
+		if ( book.summary && elements.summary ) {
+			elements.summary.closest('p').hidden = false;
+			elements.summary.value = book.summary;
+		}
 		book.isbn10 && (elements.isbn10.value = book.isbn10);
 		book.isbn13 && (elements.isbn13.value = book.isbn13);
 	}

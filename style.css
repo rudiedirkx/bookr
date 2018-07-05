@@ -164,6 +164,8 @@ textarea {
 .book-form output {
 	display: inline-block;
 	max-width: 37.25em;
+	max-height: 10em;
+	overflow: auto;
 }
 .book-form output:empty {
 	display: none;
