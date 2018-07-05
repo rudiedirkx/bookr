@@ -185,6 +185,12 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<label for="txt-author">Author:</label>
 		<input name="author" value="<?= html(@$book->author) ?>" required list="authors" />
 	</p>
+	<? if ($book): ?>
+		<p>
+			<label for="txt-added">Added:</label>
+			<?= date(FORMAT_DATE, $book->added) ?>
+		</p>
+	<? endif ?>
 	<p>
 		<label>Finished on:</label>
 		<select name="finished[year]"><?= html_options($years, @$book->finished_year, '--') ?></select>
