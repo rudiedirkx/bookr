@@ -101,7 +101,7 @@ else {
 	$categories = [];
 }
 
-$authors = $db->select_fields('books', 'author, author', 'user_id = ? GROUP BY author', [$g_user->id]);
+$authors = $db->select_fields('books', ['author'], 'user_id = ? GROUP BY author', [$g_user->id]);
 
 $years = array_combine(range(date('Y'), 1990), range(date('Y'), 1990));
 $months = array_combine(range(1, 12), array_map(function($m) {
@@ -114,7 +114,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 <form action method="post" class="book-form">
 	<div class="p search">
 		<label for="txt-search">Search:</label>
-		<input id="search" type="search" autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
+		<input id="search" type="search" autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" <? if (!$book): ?>autofocus<? endif ?> placeholder="Book title and/or author name..." />
 		<div class="results-container">
 			&nbsp;
 			<img src="images/loading16.gif" />
