@@ -35,6 +35,7 @@ class Google implements Provider {
 				'title' => trim($product['volumeInfo']['title']),
 				'subtitle' => trim(@$product['volumeInfo']['subtitle']),
 				'author' => trim(@$product['volumeInfo']['authors'][0]),
+				'rating' => isset($product['volumeInfo']['averageRating']) ? round($product['volumeInfo']['averageRating'] / 5) : null,
 				'summary' => trim(@$product['volumeInfo']['description']),
 				'isbn10' => trim($isbn10),
 				'isbn13' => trim($isbn13),

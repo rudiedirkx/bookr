@@ -268,10 +268,11 @@ console.log('RESULTS', rsp);
 			var html = '';
 			rsp.matches.forEach(function(book) {
 				books[book.source + book.id] = book;
+				var rating = book.rating != null ? '(' + book.rating + '/10) ' : '';
 				html +=	'<li><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-						( book.subtitle ? '<div class="subtitle">' + enc(book.subtitle) + '</div>' : '' ) +
-						( !book.subtitle && book.classification ? '<div class="classification">' + enc(book.classification) + '</div>' : '' ) +
+						( book.subtitle ? '<div class="subtitle">' + rating + enc(book.subtitle) + '</div>' : '' ) +
+						( !book.subtitle && book.classification ? '<div class="classification">' + rating + enc(book.classification) + '</div>' : '' ) +
 						'</a></li>';
 			});
 

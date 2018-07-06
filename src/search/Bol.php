@@ -52,6 +52,7 @@ class Bol implements Provider {
 					'title' => trim($product['title']),
 					'subtitle' => trim(@$product['subtitle']),
 					'author' => trim(@$product['specsTag']),
+					'rating' => isset($product['rating']) ? round($product['rating'] / 5) : null,
 					'classification' => trim(@$product['summary']),
 					'summary' => trim(preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'])),
 					'isbn10' => trim($isbn10),
