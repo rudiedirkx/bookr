@@ -40,6 +40,9 @@ $books = Book::all('1 ORDER BY added DESC, id DESC');
 		<tr>
 			<th data-sort="author">Author</th>
 			<th>Title</th>
+			<? if ($g_user->setting_pubyear): ?>
+				<th data-sort="pubyear" data-desc class="hide-on-small" align="right">Pub.year</th>
+			<? endif ?>
 			<th data-sort="added" data-desc data-sorting="desc" class="hide-on-small" align="right">Added</th>
 			<th data-sort="finished" data-desc class="hide-on-small" align="right">Finished</th>
 			<? if ($g_user->setting_rating): ?>
@@ -68,6 +71,9 @@ $books = Book::all('1 ORDER BY added DESC, id DESC');
 			<tr class="book rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-id="<?= $book->id ?>" data-labels="<?= html(json_encode($book->label_ids)) ?>">
 				<td data-sort="author"><?= html($book->author) ?></td>
 				<td><a href="<?= get_url('form', array('id' => $book->id)) ?>"><?= html($book->title) ?></a></td>
+				<? if ($g_user->setting_pubyear): ?>
+					<td data-sort="pubyear" class="hide-on-small" align="right"><?= html($book->pubyear) ?></td>
+				<? endif ?>
 				<td data-sort="added" data-value="<?= date('Y-m-d', $book->added) ?>" class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
 				<td data-sort="finished" data-value="<?= $book->finished ?>" class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>
 				<? if ($g_user->setting_rating): ?>

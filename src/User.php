@@ -37,7 +37,11 @@ class User extends Model {
 	}
 
 	protected function get_setting_labels() {
-		return (bool) $this->getSetting('labels', true);
+		return (bool) $this->getSetting('labels', false);
+	}
+
+	protected function get_setting_pubyear() {
+		return (bool) $this->getSetting('pubyear', true);
 	}
 
 }

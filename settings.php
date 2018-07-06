@@ -11,6 +11,7 @@ if ( isset($_POST['settings']) ) {
 		'notes' => (bool) @$settings['notes'],
 		'rating' => (bool) @$settings['rating'],
 		'labels' => (bool) @$settings['labels'],
+		'pubyear' => (bool) @$settings['pubyear'],
 	])]);
 	return do_redirect('settings');
 }
@@ -32,6 +33,7 @@ $checked = function($setting) use ($g_user) {
 	<p><label><input type="checkbox" name="settings[notes]" <?= $checked('notes') ?> /> Notes</label></p>
 	<p><label><input type="checkbox" name="settings[rating]" <?= $checked('rating') ?> /> Rating</label></p>
 	<p><label><input type="checkbox" name="settings[labels]" <?= $checked('labels') ?> /> Labels</label></p>
+	<p><label><input type="checkbox" name="settings[pubyear]" <?= $checked('pubyear') ?> /> Publication year</label></p>
 	<p><button>Save</button></p>
 </form>
 <?php

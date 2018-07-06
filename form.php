@@ -21,11 +21,10 @@ if ( $book && $_action == 'delete' ) {
 }
 
 // SAVE
-elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished'], $_POST['pubyear']) ) {
+elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	$data = array(
 		'title' => trim($_POST['title']),
 		'author' => trim($_POST['author']),
-		'pubyear' => trim($_POST['pubyear']) ?: null,
 	);
 
 	isset($_POST['rating']) and $data['rating'] = (int) $_POST['rating'] ?: null;
@@ -33,6 +32,7 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished'], $_POST['pu
 	isset($_POST['notes']) and $data['notes'] = trim($_POST['notes']);
 	empty($_POST['isbn10']) or $data['isbn10'] = trim($_POST['isbn10']);
 	empty($_POST['isbn13']) or $data['isbn13'] = trim($_POST['isbn13']);
+	isset($_POST['pubyear']) and $data['pubyear'] = (int) trim($_POST['pubyear']) ?: null;
 
 	if ( $g_user->setting_labels ) {
 		if ( isset($_POST['labels']) ) {
@@ -114,7 +114,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 <form action method="post" class="book-form">
 	<div class="p search">
 		<label for="txt-search">Search:</label>
-		<input id="search" type="search" autofocus autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
+		<input id="search" type="search" autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" placeholder="Book title and/or author name..." />
 		<div class="results-container">
 			&nbsp;
 			<img src="images/loading16.gif" />
@@ -169,10 +169,12 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			</span>
 		</p>
 	<? endforeach ?>
-	<p>
-		<label for="txt-pubyear">Publ. year:</label>
-		<input name="pubyear" value="<?= html($book->pubyear) ?>" type="number" class="pubyear" />
-	</p>
+	<? if ($g_user->setting_pubyear): ?>
+		<p>
+			<label for="txt-pubyear">Pub.year:</label>
+			<input name="pubyear" value="<?= html($book->pubyear) ?>" type="number" class="pubyear" />
+		</p>
+	<? endif ?>
 	<p>
 		<label for="txt-isbn10">ISBN 10:</label>
 		<input name="isbn10" value="<?= html(@$book->isbn10) ?>" />
@@ -269,7 +271,7 @@ console.log('RESULTS', rsp);
 			rsp.matches.forEach(function(book) {
 				books[book.source + book.id] = book;
 				var rating = book.rating != null ? '(' + book.rating + '/10) ' : '';
-				html +=	'<li><a data-id="' + book.source + book.id + '" href>' +
+				html +=	'<li title="' + book.classification + '"><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
 						( book.subtitle ? '<div class="subtitle">' + rating + enc(book.subtitle) + '</div>' : '' ) +
 						( !book.subtitle && book.classification ? '<div class="classification">' + rating + enc(book.classification) + '</div>' : '' ) +
