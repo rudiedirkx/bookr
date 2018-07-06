@@ -10,12 +10,12 @@ class Label extends UserModel {
 
 
 
-	protected function get_category() {
-		return Category::find($this->category_id);
+	protected function relate_category() {
+		return $this->relate_one(Category::class, 'category_id');
 	}
 
-	protected function get_num_books() {
-		return self::$_db->count('books_labels', ['label_id' => $this->id]);
+	protected function relate_num_books() {
+		return $this->relate_count(BookLabel::class, 'label_id');
 	}
 
 
