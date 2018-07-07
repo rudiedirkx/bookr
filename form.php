@@ -226,14 +226,13 @@ $results.addEventListener('click', function(e) {
 		var book = books[id];
 
 		var elements = document.querySelector('form').elements;
-		book.title && (elements.title.value = book.title);
-		book.author && (elements.author.value = book.author);
-		if ( book.summary && elements.summary ) {
-			elements.summary.closest('p').hidden = false;
-			elements.summary.value = book.summary;
-		}
-		book.isbn10 && (elements.isbn10.value = book.isbn10);
-		book.isbn13 && (elements.isbn13.value = book.isbn13);
+		elements.summary.closest('p').hidden = false;
+
+		elements.title.value = book.title || '';
+		elements.author.value = book.author || '';
+		elements.summary.value = book.summary || '';
+		elements.isbn10.value = book.isbn10 || '';
+		elements.isbn13.value = book.isbn13 || '';
 	}
 });
 
