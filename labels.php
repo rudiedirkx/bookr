@@ -7,7 +7,7 @@ use rdx\bookr\Model;
 
 require 'inc.bootstrap.php';
 
-$labels = Label::allSorted();
+$labels = Label::allSorted(true);
 Label::eager('num_books', $labels);
 $categories = Category::allSorted();
 
@@ -31,9 +31,8 @@ if ( isset($_POST['categories']) ) {
 
 if ( isset($_POST['labels']) ) {
 	foreach ( $_POST['labels'] as $id => $data ) {
-		$data += [
-			'default_on' => (int) !empty($data['default_on']),
-		];
+		$data['enabled'] = (int) !empty($data['enabled']);
+		$data['default_on'] = (int) !empty($data['default_on']);
 		if ( $id && isset($labels[$id]) ) {
 			$label = $labels[$id];
 			$label->update($data);
@@ -61,6 +60,7 @@ $categories[] = new Category(['id' => 0]);
 	<table border="1" cellpadding="6">
 		<thead>
 			<tr>
+				<th align="center">?</th>
 				<th>Name</th>
 				<th>Category</th>
 				<th>Default ON</th>
@@ -71,6 +71,7 @@ $categories[] = new Category(['id' => 0]);
 		<tbody>
 			<? foreach ($labels as $label): ?>
 				<tr>
+					<td align="center"><input type="checkbox" name="labels[<?= $label->id ?>][enabled]" <? if ($label->enabled): ?>checked<? endif ?> /></td>
 					<td><input name="labels[<?= $label->id ?>][name]" value="<?= html($label->name) ?>" <? if ($label->id): ?>required<? endif ?> /></td>
 					<td><select name="labels[<?= $label->id ?>][category_id]" <? if ($label->id): ?>required<? endif ?>><?= html_options($categoryOptions, $label->category_id, '--') ?></select></td>
 					<td><input type="checkbox" name="labels[<?= $label->id ?>][default_on]" <? if ($label->default_on): ?>checked<? endif ?> /></td>

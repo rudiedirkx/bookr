@@ -31,9 +31,10 @@ class Label extends UserModel {
 		return self::options($enabled);
 	}
 
-	static public function allSorted() {
+	static public function allSorted( $withDisabled = false ) {
 		if ( self::$allSorted === null ) {
-			self::$allSorted = self::all('1 ORDER BY (SELECT weight FROM categories WHERE id = category_id), weight');
+			$enabled = $withDisabled ? '1' : "enabled = '1'";
+			self::$allSorted = self::all("$enabled ORDER BY (SELECT weight FROM categories WHERE id = category_id), weight");
 		}
 
 		return self::$allSorted;

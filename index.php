@@ -11,8 +11,9 @@ include 'tpl.header.php';
 if ($g_user->setting_labels) {
 	$labels = Label::allSorted();
 	Label::eager('category', $labels);
+	Label::eager('num_books', $labels);
 	$labelOptions = array_reduce($labels, function(array $list, Label $label) {
-		$list[$label->category->name][$label->id] = $label->name;
+		$list[$label->category->name][$label->id] = "$label->name ($label->num_books)";
 		return $list;
 	}, []);
 	$categories = array_reduce($labels, function(array $list, Label $label) {

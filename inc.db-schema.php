@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 10,
+	'version' => 11,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -37,6 +37,7 @@ return [
 		'labels' => [
 			'id' => ['pk' => true],
 			'user_id' => ['unsigned' => true, 'null' => false, 'references' => ['users', 'id']],
+			'enabled' => ['unsigned' => true, 'null' => false, 'default' => 1],
 			'name' => ['null' => false],
 			'category_id' => ['unsigned' => true, 'null' => false, 'references' => ['categories', 'id']],
 			'default_on' => ['unsigned' => true, 'null' => false, 'default' => 0],
