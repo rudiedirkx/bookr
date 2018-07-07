@@ -10,6 +10,7 @@ include 'tpl.header.php';
 
 if ($g_user->setting_labels) {
 	$labels = Label::allSorted();
+	Label::eager('category', $labels);
 	$labelOptions = array_reduce($labels, function(array $list, Label $label) {
 		$list[$label->category->name][$label->id] = $label->name;
 		return $list;
@@ -23,6 +24,7 @@ else {
 }
 
 $books = Book::all('1 ORDER BY added DESC, id DESC');
+Book::eager('label_ids', $books);
 
 ?>
 <h1>

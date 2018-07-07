@@ -3,7 +3,7 @@
     "description": "Very simple book management.",
     "type": "project",
     "require": {
-        "rdx/db": "^1.8"
+        "rdx/db": "^1.9"
     },
     "autoload": {
         "files": [

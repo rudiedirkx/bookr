@@ -11,11 +11,11 @@ class Label extends UserModel {
 
 
 	protected function relate_category() {
-		return $this->relate_one(Category::class, 'category_id');
+		return $this->to_one(Category::class, 'category_id');
 	}
 
 	protected function relate_num_books() {
-		return $this->relate_count(BookLabel::class, 'label_id');
+		return $this->to_count('books_labels', 'label_id');
 	}
 
 

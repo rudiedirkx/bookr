@@ -27,8 +27,8 @@ class Book extends UserModel {
 		return Label::names($this->label_ids);
 	}
 
-	protected function get_label_ids() {
-		return self::$_db->select_fields_numeric('books_labels', 'label_id', ['book_id' => $this->id]);
+	protected function relate_label_ids() {
+		return $this->to_many_scalar('label_id', 'books_labels', 'book_id');
 	}
 
 	protected function get_finished_components() {

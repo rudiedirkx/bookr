@@ -8,6 +8,7 @@ use rdx\bookr\Model;
 require 'inc.bootstrap.php';
 
 $labels = Label::allSorted();
+Label::eager('num_books', $labels);
 $categories = Category::allSorted();
 
 if ( isset($_POST['categories']) ) {
