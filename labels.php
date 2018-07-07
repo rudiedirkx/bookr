@@ -33,6 +33,7 @@ if ( isset($_POST['labels']) ) {
 	foreach ( $_POST['labels'] as $id => $data ) {
 		$data['enabled'] = (int) !empty($data['enabled']);
 		$data['default_on'] = (int) !empty($data['default_on']);
+		$data['not_filter'] = (int) !empty($data['not_filter']);
 		if ( $id && isset($labels[$id]) ) {
 			$label = $labels[$id];
 			$label->update($data);
@@ -64,6 +65,7 @@ $categories[] = new Category(['id' => 0]);
 				<th>Name</th>
 				<th>Category</th>
 				<th>Default ON</th>
+				<th>Not-filter</th>
 				<th>Order</th>
 				<th align="right">Usage</th>
 			</tr>
@@ -75,6 +77,7 @@ $categories[] = new Category(['id' => 0]);
 					<td><input name="labels[<?= $label->id ?>][name]" value="<?= html($label->name) ?>" <? if ($label->id): ?>required<? endif ?> /></td>
 					<td><select name="labels[<?= $label->id ?>][category_id]" <? if ($label->id): ?>required<? endif ?>><?= html_options($categoryOptions, $label->category_id, '--') ?></select></td>
 					<td><input type="checkbox" name="labels[<?= $label->id ?>][default_on]" <? if ($label->default_on): ?>checked<? endif ?> /></td>
+					<td><input type="checkbox" name="labels[<?= $label->id ?>][not_filter]" <? if ($label->not_filter): ?>checked<? endif ?> /></td>
 					<td><input type="number" name="labels[<?= $label->id ?>][weight]" value="<?= html($label->weight) ?>" <? if ($label->id): ?>required<? endif ?> /></td>
 					<td align="right"><? if ($label->id): ?><?= $label->num_books ?><? endif ?></td>
 				</tr>

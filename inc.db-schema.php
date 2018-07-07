@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 11,
+	'version' => 12,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -41,6 +41,7 @@ return [
 			'name' => ['null' => false],
 			'category_id' => ['unsigned' => true, 'null' => false, 'references' => ['categories', 'id']],
 			'default_on' => ['unsigned' => true, 'null' => false, 'default' => 0],
+			'not_filter' => ['unsigned' => true, 'null' => false, 'default' => 0],
 			'weight' => ['type' => 'int'],
 		],
 		'books_labels' => [

@@ -27,6 +27,12 @@ class Book extends UserModel {
 		return Label::names($this->label_ids);
 	}
 
+	protected function get_int_label_ids() {
+		return array_map(function($n) {
+			return intval($n);
+		}, $this->label_ids);
+	}
+
 	protected function relate_label_ids() {
 		return $this->to_many_scalar('label_id', 'books_labels', 'book_id');
 	}

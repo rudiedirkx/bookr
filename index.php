@@ -14,6 +14,9 @@ if ($g_user->setting_labels) {
 	Label::eager('num_books', $labels);
 	$labelOptions = array_reduce($labels, function(array $list, Label $label) {
 		$list[$label->category->name][$label->id] = "$label->name ($label->num_books)";
+		if ( $label->not_filter ) {
+			$list[$label->category->name]["-$label->id"] = "NOT $label->name";
+		}
 		return $list;
 	}, []);
 	$categories = array_reduce($labels, function(array $list, Label $label) {
@@ -71,7 +74,7 @@ Book::eager('label_ids', $books);
 	</thead>
 	<tbody id="body">
 		<? foreach ($books as $book): ?>
-			<tr class="book rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-id="<?= $book->id ?>" data-labels="<?= html(json_encode($book->label_ids)) ?>">
+			<tr class="book rating-<?= $book->rating ?> <?= @$_GET['hilited'] == $book->id ? 'hilited' : '' ?>" data-id="<?= $book->id ?>" data-labels="<?= html(json_encode($book->int_label_ids)) ?>">
 				<td data-sort="author"><?= html($book->author) ?></td>
 				<td><a href="<?= get_url('form', array('id' => $book->id)) ?>"><?= html($book->title) ?></a></td>
 				<? if ($g_user->setting_pubyear): ?>
@@ -166,7 +169,7 @@ document.querySelector('#sorters').addEventListener('click', function(e) {
 var trs = [].slice.call(document.querySelector('#body').rows);
 function filterRows() {
 	var text = $filterText.value.toLowerCase().trim();
-	var label = $filterLabel.value;
+	var label = parseFloat($filterLabel.value) || 0;
 	var searching = text || label;
 
 	var showing = 0;
@@ -177,7 +180,7 @@ function filterRows() {
 		}
 
 		var showText = !text || tr._searchText.indexOf(text) != -1;
-		var showLabel = !label || tr._searchLabels.indexOf(label) != -1;
+		var showLabel = !label || (label > 0) == (tr._searchLabels.indexOf(Math.abs(label)) != -1);
 		var show = showText && showLabel;
 
 		tr.classList.toggle('search-hide', !show);
