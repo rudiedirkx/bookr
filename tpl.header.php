@@ -11,6 +11,7 @@ header('Content-type: text/html; charset=utf-8');
 	<title>Bookr</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" type="text/css" href="<?= html_asset('style.css') ?>" />
+	<script src="https://rawgit.com/turbolinks/turbolinks/master/dist/turbolinks.js"></script>
 </head>
 
 <body>

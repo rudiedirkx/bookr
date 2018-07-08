@@ -16,7 +16,7 @@ $_action = @$_POST['_action'] ?: 'save';
 if ( $book && $_action == 'delete' ) {
 	$book->delete();
 
-	do_redirect('index');
+	do_redirect_or_turbolink('index');
 	exit;
 }
 
@@ -59,11 +59,11 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	}
 
 	if ( !empty($_POST['another']) ) {
-		do_redirect('form', ['another' => 1]);
+		do_redirect_or_turbolink('form', ['another' => 1]);
 		exit;
 	}
 
-	do_redirect('index', array('hilited' => $id));
+	do_redirect_or_turbolink('index', array('hilited' => $id));
 	exit;
 }
 
@@ -111,7 +111,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 ?>
 <h1><?= $book ? 'Edit' : 'Add' ?> book</h1>
 
-<form action method="post" class="book-form">
+<form action method="post" class="book-form" data-turbolink>
 	<div class="p search">
 		<label for="txt-search">Search:</label>
 		<input id="search" type="search" autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" <? if (!$book): ?>autofocus<? endif ?> placeholder="Book title and/or author name..." />

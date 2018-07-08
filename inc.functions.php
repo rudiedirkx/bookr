@@ -110,6 +110,15 @@ function do_redirect( $path, $query = array() ) {
 	header('Location: ' . $url);
 }
 
+function do_redirect_or_turbolink( $path, $query = [] ) {
+	if ( isset($_SERVER['HTTP_X_TURBOLINKS']) ) {
+		echo get_url($path, $query);
+	}
+	else {
+		do_redirect($path, $query);
+	}
+}
+
 function html( $text ) {
 	return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8') ?: htmlspecialchars((string)$text, ENT_QUOTES, 'ISO-8859-1');
 }

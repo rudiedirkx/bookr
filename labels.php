@@ -25,7 +25,7 @@ if ( isset($_POST['categories']) ) {
 		}
 	}
 
-	do_redirect('labels');
+	do_redirect_or_turbolink('labels', ['msg' => 'Categories saved.']);
 	exit;
 }
 
@@ -43,7 +43,7 @@ if ( isset($_POST['labels']) ) {
 		}
 	}
 
-	do_redirect('labels');
+	do_redirect_or_turbolink('labels', ['msg' => 'Labels saved.']);
 	exit;
 }
 
@@ -57,7 +57,7 @@ $categories[] = new Category(['id' => 0]);
 ?>
 <h1>Labels</h1>
 
-<form action method="post">
+<form action method="post" data-turbolink>
 	<table border="1" cellpadding="6">
 		<thead>
 			<tr>
@@ -90,7 +90,7 @@ $categories[] = new Category(['id' => 0]);
 
 <h2>Categories</h2>
 
-<form action method="post">
+<form action method="post" data-turbolink>
 	<table border="1" cellpadding="6">
 		<thead>
 			<tr>

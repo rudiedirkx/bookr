@@ -13,6 +13,10 @@ body {
 	margin: 10px;
 }
 
+.turbolinks-progress-bar {
+	display: none;
+}
+
 :-ms-input-placeholder {
 	color: #aaa;
 }
