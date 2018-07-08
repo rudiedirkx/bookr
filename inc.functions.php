@@ -1,5 +1,15 @@
 <?php
 
+function set_message( $message ) {
+	$_SESSION['bookr']['message'] = $message;
+}
+
+function get_message() {
+	$message = $_SESSION['bookr']['message'] ?? null;
+	unset($_SESSION['bookr']['message']);
+	return $message;
+}
+
 function html_asset( $src ) {
 	$local = is_int(strpos($_SERVER['HTTP_HOST'], 'home.'));
 	$mobile = is_int(stripos($_SERVER['HTTP_USER_AGENT'], 'mobile'));

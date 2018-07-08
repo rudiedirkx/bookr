@@ -9,8 +9,6 @@ require 'env.php';
 const FORMAT_DATETIME = "j M 'y H:i";
 const FORMAT_DATE = "j M 'y";
 
-header('Content-type: text/plain; charset=utf-8');
-
 // db connection
 $db = db_sqlite::open(array('database' => __DIR__ . '/db/bookr.sqlite3'));
 if ( !$db ) {
@@ -28,3 +26,7 @@ if ( !$g_user ) {
 
 /** @var Provider */
 $g_searchers = $g_searchers ?? [];
+
+session_start();
+
+header('Content-type: text/plain; charset=utf-8');

@@ -9,7 +9,8 @@ if ( isset($_POST['rename']) ) {
 		$updated += $db->affected_rows();
 	}
 
-	do_redirect('authors', array('msg' => "Updated " . $updated . " rows"));
+	set_message("Updated " . $updated . " rows");
+	do_redirect('authors');
 	exit;
 }
 

@@ -25,6 +25,7 @@ if ( isset($_POST['categories']) ) {
 		}
 	}
 
+	set_message('Saved Categories');
 	do_redirect('labels');
 	exit;
 }
@@ -43,6 +44,7 @@ if ( isset($_POST['labels']) ) {
 		}
 	}
 
+	set_message('Saved Labels');
 	do_redirect('labels');
 	exit;
 }

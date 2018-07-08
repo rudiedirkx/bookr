@@ -23,6 +23,6 @@ header('Content-type: text/html; charset=utf-8');
 	<a href="settings.php">Settings</a>
 </p>
 
-<? if (!empty($_GET['msg'])): ?>
-	<div class="message" onclick="this.remove()"><?= html($_GET['msg']) ?></div>
+<? if ($msg = get_message()): ?>
+	<div class="message" onclick="this.remove()"><?= nl2br(html(trim($msg))) ?></div>
 <? endif ?>

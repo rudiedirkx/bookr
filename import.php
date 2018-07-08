@@ -138,12 +138,13 @@ if ( isset($_FILES['csv']) ) {
 	}
 	$db->commit();
 
-	$msg = array(
+	$msg = implode("\n", array(
 		$stats['imported'] . " books imported",
 		$stats['dateless'] . " books without finished",
 		"Import ID: " . $importId,
-	);
-	do_redirect('index', array('msg' => $msg));
+	));
+	set_message($msg);
+	do_redirect('index');
 	exit;
 }
 
@@ -151,8 +152,8 @@ elseif ( isset($_GET['undo']) ) {
 	$db->delete('books', ['user_id' => $g_user->id, 'import' => $_GET['undo']]);
 	$num = $db->affected_rows();
 
-	$msg = "Deleted $num books.";
-	do_redirect('import', array('msg' => $msg));
+	set_message("Deleted $num books.");
+	do_redirect('import');
 	exit;
 }
 
