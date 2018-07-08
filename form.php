@@ -172,7 +172,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	<? if ($g_user->setting_pubyear): ?>
 		<p>
 			<label for="txt-pubyear">Pub.year:</label>
-			<input name="pubyear" value="<?= html($book->pubyear) ?>" type="number" class="pubyear" />
+			<input name="pubyear" value="<?= html(@$book->pubyear) ?>" type="number" class="pubyear" />
 		</p>
 	<? endif ?>
 	<p>

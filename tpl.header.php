@@ -23,7 +23,6 @@ header('Content-type: text/html; charset=utf-8');
 	<a href="settings.php">Settings</a>
 </p>
 
-<? if (@$_GET['msg']): ?>
-	<? $msgs = (array)$_GET['msg'] ?>
-	<ul class="messages"><li><?= implode('</li><li>', array_map('html', $msgs)) ?></li></ul>
+<? if (!empty($_GET['msg'])): ?>
+	<div class="message" onclick="this.remove()"><?= html($_GET['msg']) ?></div>
 <? endif ?>
