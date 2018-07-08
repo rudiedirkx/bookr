@@ -205,7 +205,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<button class="submit" name="_action" value="save">Save</button>
 		&nbsp;
 		<? if ($book): ?>
-			<button class="delete" name="_action" value="delete">Delete</button>
+			<button class="delete" name="_action" value="delete" onclick="return confirm('Sure?') && confirm('SURE sure??')">Delete</button>
 		<? else: ?>
 			<label><input type="checkbox" name="another" <? if ( !empty($_GET['another']) ): ?>checked<? endif ?> /> Add another book</label>
 		<? endif ?>
