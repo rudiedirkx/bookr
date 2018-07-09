@@ -5,7 +5,7 @@ html, body {
 	margin: 0;
 	padding: 0;
 }
-body, input, select, option, textarea {
+body, input, select, option, textarea, button {
 	font-family: sans-serif;
 	font-size: 16px;
 }
@@ -23,6 +23,29 @@ body {
 	color: #bbb;
 }
 
+input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
+	width: 10em;
+	max-width: 100%;
+}
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+	padding: 4px;
+}
+input[type="number"] {
+	width: 2em;
+	text-align: center;
+	-moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	margin: 0;
+}
+
+button {
+	padding: 4px;
+}
 button.submit {
 	font-weight: bold;
 	color: green;
@@ -159,7 +182,7 @@ div.expandable:not(.expanded) {
  * Book form
  */
 
-label {
+label[for] {
 	display: block;
 	vertical-align: top;
 }
@@ -173,26 +196,13 @@ label {
 	content: '\A';
 	white-space: pre;
 }
-input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
+.book-form input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
 	width: 30em;
-	max-width: 100%;
-	padding: 1px;
-}
-input[type="number"] {
-	width: 2em;
-	text-align: center;
-	-moz-appearance: textfield;
-}
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	appearance: none;
-	margin: 0;
 }
 input.pubyear {
 	width: 4em;
 }
-textarea {
+.book-form textarea {
 	width: 37.25em;
 	max-width: 100%;
 }
@@ -219,6 +229,9 @@ textarea {
 .results-container {
 	display: inline-block;
 	position: relative;
+}
+.results-container:not(.searching):not(.results) {
+	display: none;
 }
 .results-container img {
 	position: absolute;
@@ -286,7 +299,7 @@ textarea {
 }
 
 @media (min-width: 600px) {
-	label {
+	label[for] {
 		display: inline-block;
 		min-width: 7em;
 	}

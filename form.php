@@ -113,7 +113,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 
 <form action method="post" class="book-form">
 	<div class="p search">
-		<label for="txt-search">Search:</label>
+		<label for="el-search">Search:</label>
 		<input id="search" type="search" autocomplete="off" value="<?= html(trim(@$book->author . ' ' . @$book->title)) ?>" <? if (!$book): ?>autofocus<? endif ?> placeholder="Book title and/or author name..." />
 		<div class="results-container">
 			&nbsp;
@@ -123,21 +123,21 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	</div>
 
 	<p>
-		<label for="txt-title">Title:</label>
+		<label for="el-title">Title:</label>
 		<input name="title" value="<?= html(@$book->title) ?>" required />
 	</p>
 	<p>
-		<label for="txt-author">Author:</label>
+		<label for="el-author">Author:</label>
 		<input name="author" value="<?= html(@$book->author) ?>" required list="authors" autocomplete="off" />
 	</p>
 	<? if ($book): ?>
 		<p>
-			<label for="txt-added">Added:</label>
+			<label for="el-added">Added:</label>
 			<?= date(FORMAT_DATE, $book->added) ?>
 		</p>
 	<? endif ?>
 	<p>
-		<label>Finished on:</label>
+		<label for="el-finished">Finished on:</label>
 		<select name="finished[year]"><?= html_options($years, @$book->finished_year, '--') ?></select>
 		<select name="finished[month]"><?= html_options($months, @$book->finished_month, '--') ?></select>
 		<? if ($g_user->setting_rating): ?>
@@ -147,8 +147,8 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	</p>
 	<? foreach ($categories as $category): ?>
 		<p>
-			<label>
-				<?= html($category) ?>:<br>
+			<label for="el-cat<?= $category->id ?>">
+				<?= html($category) ?>:
 				<? if (!$category->multiple && !$category->required): ?>
 					<input type="radio" name="labels[<?= $category->id ?>][]" value="0" />
 				<? endif ?>
@@ -171,32 +171,32 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	<? endforeach ?>
 	<? if ($g_user->setting_pubyear): ?>
 		<p>
-			<label for="txt-pubyear">Pub.year:</label>
+			<label for="el-pubyear">Pub.year:</label>
 			<input name="pubyear" value="<?= html(@$book->pubyear) ?>" type="number" class="pubyear" />
 		</p>
 	<? endif ?>
 	<p>
-		<label for="txt-isbn10">ISBN 10:</label>
+		<label for="el-isbn10">ISBN 10:</label>
 		<input name="isbn10" value="<?= html(@$book->isbn10) ?>" />
 	</p>
 	<p>
-		<label for="txt-isbn13">ISBN 13:</label>
+		<label for="el-isbn13">ISBN 13:</label>
 		<input name="isbn13" value="<?= html(@$book->isbn13) ?>" />
 	</p>
 	<? if ($g_user->setting_summary): ?>
 		<p>
-			<label for="txt-summary">Summary:</label><br />
+			<label for="el-summary">Summary:</label><br />
 			<textarea name="summary" rows="8"><?= html(@$book->summary) ?></textarea>
 		</p>
 	<? else: ?>
 		<p hidden>
-			<label for="txt-summary">Summary:</label><br />
+			<label for="el-summary">Summary:</label><br />
 			<output name="summary"></output>
 		</p>
 	<? endif ?>
 	<? if ($g_user->setting_notes): ?>
 		<p>
-			<label for="txt-notes">Personal notes:</label><br />
+			<label for="el-notes">Personal notes:</label><br />
 			<textarea name="notes" rows="3"><?= html(@$book->notes) ?></textarea>
 		</p>
 	<? endif ?>
@@ -207,7 +207,7 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<? if ($book): ?>
 			<button class="delete" name="_action" value="delete" onclick="return confirm('Sure?') && confirm('SURE sure??')">Delete</button>
 		<? else: ?>
-			<label><input type="checkbox" name="another" <? if ( !empty($_GET['another']) ): ?>checked<? endif ?> /> Add another book</label>
+			<label><input type="checkbox" name="another" <? if ( !empty($_GET['another']) ): ?>checked<? endif ?> /> Add another</label>
 		<? endif ?>
 		&nbsp;
 		<a href="<?= get_url('labels') ?>">manage labels</a>
