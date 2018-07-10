@@ -54,15 +54,15 @@ Book::eager('label_ids', $books);
 			<? if ($g_user->setting_rating): ?>
 				<th data-sort="rating" data-desc class="hide-on-small">Rating</th>
 			<? endif ?>
-			<? if ($g_user->setting_summary || $g_user->setting_notes): ?>
+			<? if ($g_user->setting_summary_in_list || $g_user->setting_notes_in_list): ?>
 				<th class="hide-on-small">
-					<? if ($g_user->setting_summary): ?>
+					<? if ($g_user->setting_summary_in_list): ?>
 						Summary
 					<? endif ?>
-					<? if ($g_user->setting_summary && $g_user->setting_notes): ?>
+					<? if ($g_user->setting_summary_in_list && $g_user->setting_notes_in_list): ?>
 						&amp;
 					<? endif ?>
-					<? if ($g_user->setting_notes): ?>
+					<? if ($g_user->setting_notes_in_list): ?>
 						Notes
 					<? endif ?>
 				</th>
@@ -85,12 +85,12 @@ Book::eager('label_ids', $books);
 				<? if ($g_user->setting_rating): ?>
 					<td data-sort="rating" data-value="<?= $book->rating ?>" class="hide-on-small rating" align="center" nowrap><?= $book->rating ?></td>
 				<? endif ?>
-				<? if ($g_user->setting_summary || $g_user->setting_notes): ?>
+				<? if ($g_user->setting_summary_in_list || $g_user->setting_notes_in_list): ?>
 					<td class="hide-on-small">
-						<? if ($g_user->setting_summary): ?>
+						<? if ($g_user->setting_summary_in_list): ?>
 							<div class="summary expandable"><?= html($book->summary) ?></div>
 						<? endif ?>
-						<? if ($g_user->setting_notes): ?>
+						<? if ($g_user->setting_notes_in_list): ?>
 							<div class="notes expandable"><?= html($book->notes) ?></div>
 						<? endif ?>
 					</td>
@@ -201,6 +201,7 @@ $filterText.addEventListener('input', function(e) {
 $filterLabel.addEventListener('change', function(e) {
 	filterRows();
 });
+window.addEventListener('load', filterRows);
 
 /**
  * Expandables

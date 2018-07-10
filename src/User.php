@@ -28,8 +28,16 @@ class User extends Model {
 		return (bool) $this->getSetting('summary', true);
 	}
 
+	protected function get_setting_summary_in_list() {
+		return (bool) $this->getSetting('summary_in_list', true) && $this->setting_summary;
+	}
+
 	protected function get_setting_notes() {
 		return (bool) $this->getSetting('notes', true);
+	}
+
+	protected function get_setting_notes_in_list() {
+		return (bool) $this->getSetting('notes_in_list', true) && $this->setting_notes;
 	}
 
 	protected function get_setting_rating() {

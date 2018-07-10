@@ -75,7 +75,7 @@ $categories[] = new Category(['id' => 0]);
 		<tbody>
 			<? foreach ($labels as $label): ?>
 				<tr>
-					<td align="center"><input type="checkbox" name="labels[<?= $label->id ?>][enabled]" <? if ($label->enabled): ?>checked<? endif ?> /></td>
+					<td align="center"><input type="checkbox" name="labels[<?= $label->id ?>][enabled]" <? if (!$label->id || $label->enabled): ?>checked<? endif ?> /></td>
 					<td><input name="labels[<?= $label->id ?>][name]" value="<?= html($label->name) ?>" <? if ($label->id): ?>required<? endif ?> /></td>
 					<td><select name="labels[<?= $label->id ?>][category_id]" <? if ($label->id): ?>required<? endif ?>><?= html_options($categoryOptions, $label->category_id, '--') ?></select></td>
 					<td><input type="checkbox" name="labels[<?= $label->id ?>][default_on]" <? if ($label->default_on): ?>checked<? endif ?> /></td>
