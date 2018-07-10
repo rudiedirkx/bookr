@@ -8,14 +8,18 @@ require 'inc.bootstrap.php';
 
 include 'tpl.header.php';
 
+$books = Book::all('1 ORDER BY added DESC, id DESC');
+Book::eager('label_ids', $books);
+$total = count($books);
+
 if ($g_user->setting_labels) {
 	$labels = Label::allSorted();
 	Label::eager('category', $labels);
 	Label::eager('num_books', $labels);
-	$labelOptions = array_reduce($labels, function(array $list, Label $label) {
+	$labelOptions = array_reduce($labels, function(array $list, Label $label) use ($total) {
 		$list[$label->category->name][$label->id] = "$label->name ($label->num_books)";
 		if ( $label->not_filter ) {
-			$list[$label->category->name]["-$label->id"] = "NOT $label->name";
+			$list[$label->category->name]["-$label->id"] = "NOT $label->name (" . ($total - $label->num_books) . ")";
 		}
 		return $list;
 	}, []);
@@ -26,9 +30,6 @@ if ($g_user->setting_labels) {
 else {
 	$categories = [];
 }
-
-$books = Book::all('1 ORDER BY added DESC, id DESC');
-Book::eager('label_ids', $books);
 
 ?>
 <h1>
