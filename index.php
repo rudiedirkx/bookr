@@ -37,7 +37,7 @@ else {
 	(<span id="filter-res-nums" hidden><output id="filter-res-num">?</output> / </span><?= count($books) ?>)
 </h1>
 
-<p>
+<p class="index-filters">
 	<input type="search" id="filter-text" placeholder="Author &amp; Title" autocomplete="off" />
 	<select id="filter-label"><?= html_options($labelOptions, null, '-- Label') ?></select>
 </p>
