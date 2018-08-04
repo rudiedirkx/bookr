@@ -10,6 +10,9 @@ class User extends Model {
 		if ( $username && $password ) {
 			$user = self::first(['username' => $username]);
 			if ( $user && password_verify($password, $user->password) ) {
+				if ( $user->last_login < time() - 60 ) {
+					$user->update(['last_login' => time()]);
+				}
 				return $user;
 			}
 		}

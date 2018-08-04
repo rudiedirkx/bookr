@@ -1,13 +1,14 @@
 <?php
 
 return [
-	'version' => 12,
+	'version' => 13,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
 			'username' => ['null' => false],
 			'password' => ['null' => false],
 			'settings',
+			'last_login' => ['unsigned' => true, 'null' => false, 'default' => 0],
 		],
 		'books' => [
 			'id' => ['pk' => true],
