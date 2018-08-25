@@ -27,6 +27,10 @@ class User extends Model {
 		return json_decode($this->settings, true) ?: [];
 	}
 
+	protected function get_setting_started() {
+		return (bool) $this->getSetting('started', false);
+	}
+
 	protected function get_setting_summary() {
 		return (bool) $this->getSetting('summary', true);
 	}

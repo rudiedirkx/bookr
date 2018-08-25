@@ -29,4 +29,5 @@ $g_searchers = $g_searchers ?? [];
 
 session_start();
 
+header('Access-Control-Expose-Headers: Location');
 header('Content-type: text/plain; charset=utf-8');

@@ -42,11 +42,23 @@ class Book extends UserModel {
 	}
 
 	protected function get_finished_year() {
-		return @$this->finished_components[0];
+		return $this->finished_components[0] ?? null;
 	}
 
 	protected function get_finished_month() {
-		return @$this->finished_components[1];
+		return $this->finished_components[1] ?? null;
+	}
+
+	protected function get_started_components() {
+		return $this->started ? array_map('intval', explode('-', $this->started)) : array(0, 0, 0);
+	}
+
+	protected function get_started_year() {
+		return $this->started_components[0] ?? null;
+	}
+
+	protected function get_started_month() {
+		return $this->started_components[1] ?? null;
 	}
 
 

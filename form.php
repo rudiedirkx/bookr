@@ -7,6 +7,9 @@ use rdx\bookr\Model;
 
 require 'inc.bootstrap.php';
 
+// sleep(1);
+// return do_redirect('oele');
+
 $id = @$_GET['id'];
 $book = $id ? Book::find($id) : null;
 
@@ -43,13 +46,17 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 		}
 	}
 
-	$year = (int) $_POST['finished']['year'];
-	$month = (int) $_POST['finished']['month'];
-	$data['finished'] = $year ? implode('-', array(
-		str_pad($year ?: '0', 4, '0', STR_PAD_LEFT),
-		str_pad($month ?: '0', 2, '0', STR_PAD_LEFT),
-		'00',
-	)) : null;
+	foreach ( ['started', 'finished'] as $name ) {
+		if ( !isset($_POST[$name]) ) continue;
+
+		$year = (int) $_POST[$name]['year'];
+		$month = (int) $_POST[$name]['month'];
+		$data[$name] = $year ? implode('-', array(
+			str_pad($year ?: '0', 4, '0', STR_PAD_LEFT),
+			str_pad($month ?: '0', 2, '0', STR_PAD_LEFT),
+			'00',
+		)) : null;
+	}
 
 	if ( $book ) {
 		$book->update($data);
@@ -134,6 +141,13 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<p>
 			<label for="el-added">Added:</label>
 			<?= date(FORMAT_DATE, $book->added) ?>
+		</p>
+	<? endif ?>
+	<? if ($g_user->setting_started): ?>
+		<p>
+			<label for="el-started">Started on:</label>
+			<select name="started[year]"><?= html_options($years, @$book->started_year, '--') ?></select>
+			<select name="started[month]"><?= html_options($months, @$book->started_month, '--') ?></select>
 		</p>
 	<? endif ?>
 	<p>
