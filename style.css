@@ -214,7 +214,8 @@ label[for] {
 .book-form input:not([type="checkbox"]):not([type="radio"]):not([type="number"]) {
 	width: 30em;
 }
-input.pubyear {
+input.pubyear,
+input.pages {
 	width: 4em;
 }
 .book-form textarea {

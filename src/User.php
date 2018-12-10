@@ -59,4 +59,12 @@ class User extends Model {
 		return (bool) $this->getSetting('pubyear', true);
 	}
 
+	protected function get_setting_pages() {
+		return (bool) $this->getSetting('pages', false);
+	}
+
+	protected function get_setting_pages_in_list() {
+		return (bool) $this->getSetting('pages_in_list', false);
+	}
+
 }

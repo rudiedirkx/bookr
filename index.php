@@ -38,8 +38,8 @@ else {
 </h1>
 
 <p class="index-filters">
-	<input type="search" id="filter-text" placeholder="Author &amp; Title" autocomplete="off" />
-	<select id="filter-label"><?= html_options($labelOptions, null, '-- Label') ?></select>
+	<input type="search" id="filter-text" placeholder="Author &amp; Title" autocomplete="off" value="<?= html(@$_GET['text']) ?>" />
+	<select id="filter-label"><?= html_options($labelOptions, @$_GET['label'], '-- Label') ?></select>
 </p>
 
 <table>
@@ -49,6 +49,9 @@ else {
 			<th>Title</th>
 			<? if ($g_user->setting_pubyear): ?>
 				<th data-sort="pubyear" data-desc class="hide-on-small" align="right">Pub.year</th>
+			<? endif ?>
+			<? if ($g_user->setting_pages_in_list): ?>
+				<th data-sort="pages_in_list" data-desc class="hide-on-small" align="right">Pages</th>
 			<? endif ?>
 			<th data-sort="added" data-desc data-sorting="desc" class="hide-on-small" align="right">Added</th>
 			<th data-sort="finished" data-desc class="hide-on-small" align="right">Finished</th>
@@ -80,6 +83,9 @@ else {
 				<td><a href="<?= get_url('form', array('id' => $book->id)) ?>"><?= html($book->title) ?></a></td>
 				<? if ($g_user->setting_pubyear): ?>
 					<td data-sort="pubyear" class="hide-on-small" align="right"><?= html($book->pubyear) ?></td>
+				<? endif ?>
+				<? if ($g_user->setting_pages_in_list): ?>
+					<td data-sort="pages_in_list" class="hide-on-small" align="right"><?= html($book->pages) ?></td>
 				<? endif ?>
 				<td data-sort="added" data-value="<?= date('Y-m-d', $book->added) ?>" class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
 				<td data-sort="finished" data-value="<?= $book->finished ?>" class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>

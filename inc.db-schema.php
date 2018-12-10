@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'version' => 14,
+	'version' => 15,
 	'tables' => [
 		'users' => [
 			'id' => ['pk' => true],
@@ -26,6 +26,7 @@ return [
 			'isbn10' => ['null' => true, 'default' => null],
 			'isbn13' => ['null' => true, 'default' => null],
 			'rating' => ['unsigned' => true, 'null' => true, 'default' => null],
+			'pages' => ['unsigned' => true, 'null' => true, 'default' => null],
 		],
 		'categories' => [
 			'id' => ['pk' => true],

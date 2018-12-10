@@ -15,6 +15,8 @@ if ( isset($_POST['settings']) ) {
 		'labels' => (bool) @$settings['labels'],
 		'pubyear' => (bool) @$settings['pubyear'],
 		'started' => (bool) @$settings['started'],
+		'pages' => (bool) @$settings['pages'],
+		'pages_in_list' => (bool) @$settings['pages_in_list'],
 	])]);
 	return do_redirect('settings');
 }
@@ -40,6 +42,8 @@ $checked = function($setting) use ($g_user) {
 	<p><label><input type="checkbox" name="settings[labels]" <?= $checked('labels') ?> /> Labels</label></p>
 	<p><label><input type="checkbox" name="settings[pubyear]" <?= $checked('pubyear') ?> /> Publication year</label></p>
 	<p><label><input type="checkbox" name="settings[started]" <?= $checked('started') ?> /> Started on</label></p>
+	<p><label><input type="checkbox" name="settings[pages]" <?= $checked('pages') ?> /> Pages</label></p>
+	<p><label><input type="checkbox" name="settings[pages_in_list]" <?= $checked('pages_in_list') ?> /> Pages in list</label></p>
 	<p><button>Save</button></p>
 </form>
 <?php

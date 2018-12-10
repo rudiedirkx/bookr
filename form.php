@@ -36,6 +36,7 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 	empty($_POST['isbn10']) or $data['isbn10'] = trim($_POST['isbn10']);
 	empty($_POST['isbn13']) or $data['isbn13'] = trim($_POST['isbn13']);
 	isset($_POST['pubyear']) and $data['pubyear'] = (int) trim($_POST['pubyear']) ?: null;
+	isset($_POST['pages']) and $data['pages'] = (int) trim($_POST['pages']) ?: null;
 
 	if ( $g_user->setting_labels ) {
 		if ( isset($_POST['labels']) ) {
@@ -187,6 +188,12 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 		<p>
 			<label for="el-pubyear">Pub.year:</label>
 			<input name="pubyear" value="<?= html(@$book->pubyear) ?>" type="number" class="pubyear" />
+		</p>
+	<? endif ?>
+	<? if ($g_user->setting_pages): ?>
+		<p>
+			<label for="el-pages">Pages:</label>
+			<input name="pages" value="<?= html(@$book->pages) ?>" type="number" min="0" class="pages" />
 		</p>
 	<? endif ?>
 	<p>
