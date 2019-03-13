@@ -54,6 +54,7 @@ else {
 				<th data-sort="pages_in_list" data-desc class="hide-on-small" align="right">Pages</th>
 			<? endif ?>
 			<th data-sort="added" data-desc data-sorting="desc" class="hide-on-small" align="right">Added</th>
+			<th data-sort="started" data-desc class="hide-on-small" align="right">Started</th>
 			<th data-sort="finished" data-desc class="hide-on-small" align="right">Finished</th>
 			<? if ($g_user->setting_rating): ?>
 				<th data-sort="rating" data-desc class="hide-on-small">Rating</th>
@@ -88,6 +89,7 @@ else {
 					<td data-sort="pages_in_list" class="hide-on-small" align="right"><?= html($book->pages) ?></td>
 				<? endif ?>
 				<td data-sort="added" data-value="<?= date('Y-m-d', $book->added) ?>" class="hide-on-small" align="right" nowrap><?= date(FORMAT_DATE, $book->added) ?></td>
+				<td data-sort="started" data-value="<?= $book->started ?>" class="hide-on-small" align="right" nowrap><?= get_date($book->started) ?></td>
 				<td data-sort="finished" data-value="<?= $book->finished ?>" class="hide-on-small" align="right" nowrap><?= get_date($book->finished) ?></td>
 				<? if ($g_user->setting_rating): ?>
 					<td data-sort="rating" data-value="<?= $book->rating ?>" class="hide-on-small rating" align="center" nowrap><?= $book->rating ?></td>
