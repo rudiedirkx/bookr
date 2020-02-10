@@ -8,6 +8,8 @@ header('Content-type: text/html; charset=utf-8');
 
 <head>
 	<meta charset="utf-8" />
+	<meta name="theme-color" content="#333" />
+	<meta name="referrer" content="no-referrer" />
 	<title>Bookr</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" type="text/css" href="<?= html_asset('style.css') ?>" />
