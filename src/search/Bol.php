@@ -27,7 +27,7 @@ class Bol implements Provider {
 
 		$had = $results = [];
 		foreach ( $products as $product ) {
-			if ( $product['gpc'] == 'book' && !empty($product['title']) && !empty($product['specsTag']) ) {
+			if ( $product['gpc'] == 'BOOKS' && !empty($product['title']) && !empty($product['specsTag']) ) {
 				$key = trim(mb_strtolower($product['specsTag'] . ':' . $product['title']), '.! )(');
 				if ( isset($had[$key]) ) {
 					continue;
