@@ -178,6 +178,7 @@ document.querySelector('#sorters').addEventListener('click', function(e) {
 var trs = [].slice.call(document.querySelector('#body').rows);
 function filterRows() {
 	var text = $filterText.value.toLowerCase().trim();
+	var textRegex = new RegExp(text);
 	var label = parseFloat($filterLabel.value) || 0;
 	var searching = text || label;
 
@@ -188,7 +189,7 @@ function filterRows() {
 			tr._searchLabels = JSON.parse(tr.dataset.labels);
 		}
 
-		var showText = !text || tr._searchText.indexOf(text) != -1;
+		var showText = !text || tr._searchText.match(textRegex) != null;
 		var showLabel = !label || (label > 0) == (tr._searchLabels.indexOf(Math.abs(label)) != -1);
 		var show = showText && showLabel;
 
