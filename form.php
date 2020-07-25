@@ -78,12 +78,17 @@ elseif ( isset($_POST['title'], $_POST['author'], $_POST['finished']) ) {
 // SEARCH
 elseif ( isset($_GET['search']) ) {
 	$query = trim($_GET['search']);
+	$debug = !empty($_GET['debug']);
 	$data = array('query' => $query, 'matches' => array());
 
 	header('Content-type: text/plain; charset=utf-8');
 
 	foreach ( $g_searchers as $searcher ) {
-		$data['matches'] = array_merge($data['matches'], $searcher->search($query));
+		$data['matches'] = array_merge($data['matches'], $searcher->search($query, $debug));
+	}
+
+	if ( $debug ) {
+		exit;
 	}
 
 	echo json_encode($data);
@@ -196,11 +201,11 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 			<input name="pages" value="<?= html(@$book->pages) ?>" type="number" min="0" class="pages" />
 		</p>
 	<? endif ?>
-	<p>
+	<p hidden>
 		<label for="el-isbn10">ISBN 10:</label>
 		<input name="isbn10" value="<?= html(@$book->isbn10) ?>" />
 	</p>
-	<p>
+	<p hidden>
 		<label for="el-isbn13">ISBN 13:</label>
 		<input name="isbn13" value="<?= html(@$book->isbn13) ?>" />
 	</p>
@@ -254,6 +259,8 @@ $results.addEventListener('click', function(e) {
 		elements.summary.value = book.summary || '';
 		elements.isbn10.value = book.isbn10 || '';
 		elements.isbn13.value = book.isbn13 || '';
+		elements.pages && (elements.pages.value = book.pages || '');
+		elements.pubyear && (elements.pubyear.value = book.pubyear || '');
 	}
 });
 
@@ -293,8 +300,8 @@ console.log('RESULTS', rsp);
 				var rating = book.rating != null ? '(' + book.rating + '/10) ' : '';
 				html +=	'<li title="' + book.classification + '"><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-						( book.subtitle ? '<div class="subtitle">' + rating + enc(book.subtitle) + '</div>' : '' ) +
-						( !book.subtitle && book.classification ? '<div class="classification">' + rating + enc(book.classification) + '</div>' : '' ) +
+						( book.subtitle ? '<div class="subtitle">' + enc(book.subtitle) + '</div>' : '' ) +
+						( !book.subtitle && book.classification ? '<div class="classification">' + enc(book.classification) + '</div>' : '' ) +
 						'</a></li>';
 			});
 

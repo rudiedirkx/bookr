@@ -4,7 +4,7 @@ namespace rdx\bookr\search;
 
 class Google implements Provider {
 
-	public function search( $text ) {
+	public function search( $text, $debug = false ) {
 		$params = array(
 			'q' => $text,
 			'orderBy' => 'relevance',

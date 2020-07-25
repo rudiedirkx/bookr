@@ -10,7 +10,7 @@ class Bol implements Provider {
 		$this->apiKey = $apiKey;
 	}
 
-	public function search( $text ) {
+	public function search( $text, $debug = false ) {
 		$params = array(
 			'format' => 'json',
 			'apikey' => $this->apiKey,
@@ -23,6 +23,11 @@ class Bol implements Provider {
 		$json = file_get_contents($url);
 
 		$response = json_decode($json, true);
+
+		if ( $debug ) {
+			print_r($response);
+		}
+
 		$products = (array) @$response['products'];
 
 		$had = $results = [];
@@ -34,14 +39,22 @@ class Bol implements Provider {
 				}
 				$had[$key] = 1;
 
-				$isbn10 = $isbn13 = '';
+				$isbn10 = $isbn13 = $pages = $pubyear = null;
 				foreach ( (array) @$product['attributeGroups'] as $group ) {
 					foreach ( (array) @$group['attributes'] as $attribute ) {
 						if ( strtolower($attribute['label']) == 'isbn10' ) {
-							$isbn10 = $attribute['value'];
+							$isbn10 = trim($attribute['value']);
 						}
 						elseif ( strtolower($attribute['label']) == 'isbn13' ) {
-							$isbn13 = $attribute['value'];
+							$isbn13 = trim($attribute['value']);
+						}
+						elseif ( strtolower($attribute['label']) == "aantal pagina's" ) {
+							$pages = (int) trim($attribute['value']);
+						}
+						elseif ( strtolower($attribute['label']) == 'verschijningsdatum' ) {
+							if ( preg_match('#(\d{4})#', $attribute['value'], $match) ) {
+								$pubyear = $match[1];
+							}
 						}
 					}
 				}
@@ -55,8 +68,10 @@ class Bol implements Provider {
 					'rating' => isset($product['rating']) ? round($product['rating'] / 5) : null,
 					'classification' => trim(@$product['summary']),
 					'summary' => trim(preg_replace('#(<br[^>]*>)+#', "\n\n", @$product['shortDescription'])),
-					'isbn10' => trim($isbn10),
-					'isbn13' => trim($isbn13),
+					'isbn10' => $isbn10,
+					'isbn13' => $isbn13,
+					'pages' => $pages,
+					'pubyear' => $pubyear,
 				];
 			}
 		}
