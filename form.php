@@ -116,9 +116,12 @@ else {
 
 $authors = $db->select_fields('books', ['author'], 'user_id = ? GROUP BY author', [$g_user->id]);
 
-$years = array_combine(range(date('Y'), 1990), range(date('Y'), 1990));
+$years = array_map(function($year) {
+	return $year == date('Y') ? "($year)" : $year;
+}, array_combine(range(date('Y'), 1990), range(date('Y'), 1990)));
 $months = array_combine(range(1, 12), array_map(function($m) {
-	return date('F', mktime(1, 1, 1, $m, 1, 2000));
+	$month = date('F', mktime(1, 1, 1, $m, 1, 2000));
+	return date('n') == $m ? "($month)" : $month;
 }, range(1, 12)));
 
 ?>
