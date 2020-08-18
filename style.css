@@ -100,31 +100,36 @@ th[data-sort]:not([data-sorting]):after {
  * List ratings
  */
 
-tr.rating-1 td.rating {
+tr.rating-1 td.rating,
+.rating.rating-1 {
 	background: red !important;
 }
 tr.rating-1 {
 	border-right: solid 5px red !important;
 }
-tr.rating-2 td.rating {
+tr.rating-2 td.rating,
+.rating.rating-2 {
 	background: orange !important;
 }
 tr.rating-2 {
 	border-right: solid 5px orange !important;
 }
-tr.rating-3 td.rating {
+tr.rating-3 td.rating,
+.rating.rating-3 {
 	background: yellow !important;
 }
 tr.rating-3 {
 	border-right: solid 5px yellow !important;
 }
-tr.rating-4 td.rating {
+tr.rating-4 td.rating,
+.rating.rating-4 {
 	background: lime !important;
 }
 tr.rating-4 {
 	border-right: solid 5px lime !important;
 }
-tr.rating-5 td.rating {
+tr.rating-5 td.rating,
+.rating.rating-5 {
 	background: green !important;
 	color: white !important;
 }

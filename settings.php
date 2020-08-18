@@ -25,27 +25,65 @@ include 'tpl.header.php';
 
 $checked = function($setting) use ($g_user) {
 	return $g_user->{"setting_$setting"} ? 'checked' : '';
-}
+};
+
+$ratings = $db->fetch_fields("
+	SELECT rating, count(1) num
+	FROM books
+	WHERE user_id = ? AND rating IS NOT NULL
+	GROUP BY rating
+	ORDER BY rating DESC
+", [$g_user->id]);
+
+$checkboxes = [
+	'summary' => "Summary",
+	'summary_in_list' => "Summary in list",
+	'notes' => "Notes",
+	'notes_in_list' => "Notes in list",
+	'rating' => "Rating",
+	'labels' => "Labels",
+	'pubyear' => "Publication year",
+	'started' => "Started on",
+	'pages' => "Pages",
+	'pages_in_list' => "Pages in list",
+];
 
 ?>
+<style>
+.form-cb {
+	margin: 0.4em 0;
+}
+</style>
+
 <h1>Settings</h1>
 
 <p><a href="<?= get_url('labels') ?>">manage labels</a></p>
 
 <form method="post" action>
 	<input type="hidden" name="settings" />
-	<p><label><input type="checkbox" name="settings[summary]" <?= $checked('summary') ?> /> Summary</label></p>
-	<p><label><input type="checkbox" name="settings[summary_in_list]" <?= $checked('summary_in_list') ?> /> Summary in list</label></p>
-	<p><label><input type="checkbox" name="settings[notes]" <?= $checked('notes') ?> /> Notes</label></p>
-	<p><label><input type="checkbox" name="settings[notes_in_list]" <?= $checked('notes_in_list') ?> /> Notes in list</label></p>
-	<p><label><input type="checkbox" name="settings[rating]" <?= $checked('rating') ?> /> Rating</label></p>
-	<p><label><input type="checkbox" name="settings[labels]" <?= $checked('labels') ?> /> Labels</label></p>
-	<p><label><input type="checkbox" name="settings[pubyear]" <?= $checked('pubyear') ?> /> Publication year</label></p>
-	<p><label><input type="checkbox" name="settings[started]" <?= $checked('started') ?> /> Started on</label></p>
-	<p><label><input type="checkbox" name="settings[pages]" <?= $checked('pages') ?> /> Pages</label></p>
-	<p><label><input type="checkbox" name="settings[pages_in_list]" <?= $checked('pages_in_list') ?> /> Pages in list</label></p>
+	<? foreach ($checkboxes as $name => $label): ?>
+		<div class="form-cb">
+			<label>
+				<input type="checkbox" name="settings[<?= $name ?>]" <?= $checked($name) ?> />
+				<?= html($label) ?>
+			</label>
+		</div>
+	<? endforeach ?>
 	<p><button>Save</button></p>
 </form>
 <?php
+
+if ( $checked('rating') ) {
+	?>
+	<h2>Ratings</h2>
+	<table style="width: auto">
+		<tr>
+			<? foreach ($ratings as $rating => $num): ?>
+				<td class="rating rating-<?= $rating ?>"><?= $num ?></td>
+			<? endforeach ?>
+		</tr>
+	</table>
+	<?php
+}
 
 include 'tpl.footer.php';
