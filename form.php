@@ -116,13 +116,14 @@ else {
 
 $authors = $db->select_fields('books', ['author'], 'user_id = ? GROUP BY author', [$g_user->id]);
 
-$years = array_map(function($year) {
-	return $year == date('Y') ? "($year)" : $year;
-}, array_combine(range(date('Y'), 1990), range(date('Y'), 1990)));
+$curYear = date('Y');
+$years = array_combine(range($curYear, 1990), range($curYear, 1990));
+$curYearOption = html_options([$curYear => $years[$curYear]]);
+$curMonth = date('n');
 $months = array_combine(range(1, 12), array_map(function($m) {
-	$month = date('F', mktime(1, 1, 1, $m, 1, 2000));
-	return date('n') == $m ? "($month)" : $month;
+	return date('F', mktime(1, 1, 1, $m, 1, 2000));
 }, range(1, 12)));
+$curMonthOption = html_options([$curMonth => $months[$curMonth]]);
 
 ?>
 <h1><?= $book ? 'Edit' : 'Add' ?> book</h1>
@@ -155,14 +156,14 @@ $months = array_combine(range(1, 12), array_map(function($m) {
 	<? if ($g_user->setting_started): ?>
 		<p>
 			<label for="el-started">Started on:</label>
-			<select name="started[year]"><?= html_options($years, @$book->started_year, '--') ?></select>
-			<select name="started[month]"><?= html_options($months, @$book->started_month, '--') ?></select>
+			<select name="started[year]"><?= $curYearOption . html_options($years, $book->started_year ?: '', '--') ?></select>
+			<select name="started[month]"><?= $curMonthOption . html_options($months, $book->started_month ?: '', '--') ?></select>
 		</p>
 	<? endif ?>
 	<p>
 		<label for="el-finished">Finished on:</label>
-		<select name="finished[year]"><?= html_options($years, @$book->finished_year, '--') ?></select>
-		<select name="finished[month]"><?= html_options($months, @$book->finished_month, '--') ?></select>
+		<select name="finished[year]"><?= $curYearOption . html_options($years, $book->finished_year ?: '', '--') ?></select>
+		<select name="finished[month]"><?= $curMonthOption . html_options($months, $book->finished_month ?: '', '--') ?></select>
 		<? if ($g_user->setting_rating): ?>
 			&nbsp; - &nbsp;
 			<select name="rating"><?= html_options(Book::$ratings, @$book->rating, '--') ?></select>

@@ -72,7 +72,10 @@ function html_options( $options, $selected = null, $empty = '', $datalist = fals
 	$selected = (array) $selected;
 
 	$html = '';
-	$empty && $html .= '<option value="">' . $empty . '</option>';
+
+	$isSelected = in_array('', $selected, true) ? ' selected' : '';
+	$empty && $html .= '<option value=""' . $isSelected . '>' . $empty . '</option>';
+
 	foreach ( $options AS $value => $label ) {
 		if ( is_array($label) ) {
 			$html .= '<optgroup label="' .  html($value) . '">';
