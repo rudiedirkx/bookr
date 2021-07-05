@@ -1,5 +1,6 @@
 <?php
 
+use rdx\bookr\Model;
 use rdx\bookr\User;
 use rdx\bookr\search\Provider;
 
@@ -15,7 +16,7 @@ if ( !$db ) {
 	exit('No database connecto...');
 }
 
-db_generic_model::$_db = $db;
+Model::$_db = $db;
 
 $db->ensureSchema(require 'inc.db-schema.php');
 
@@ -24,8 +25,10 @@ if ( !$g_user ) {
 	do_auth();
 }
 
-/** @var Provider */
-$g_searchers = $g_searchers ?? [];
+/** @var Provider[] */
+$g_searchers = array_map(function(array $args) {
+	return new $args[0](...array_slice($args, 1));
+}, BOOKR_SEARCHERS);
 
 session_start();
 
