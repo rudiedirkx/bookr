@@ -21,6 +21,13 @@ if ( isset($_POST['settings']) ) {
 	return do_redirect('settings');
 }
 
+if ( isset($_POST['password']) ) {
+	$g_user->update([
+		'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
+	]);
+	return do_redirect('index');
+}
+
 include 'tpl.header.php';
 
 $checked = function($setting) use ($g_user) {
@@ -71,6 +78,19 @@ $checkboxes = [
 	<? endforeach ?>
 	<p><button>Save</button></p>
 </form>
+
+<h2>Change password</h2>
+<form action method="post">
+	<p>You immediately have to log in again with your new password.</p>
+	<p>
+		<label for="password">New password</label>
+		<input type="text" name="password" id="password" autocomplete="new-password" />
+	</p>
+	<p>
+		<button class="submit">Save</button>
+	</p>
+</form>
+
 <?php
 
 if ( $checked('rating') ) {
