@@ -81,10 +81,9 @@ $checkboxes = [
 
 <h2>Change password</h2>
 <form action method="post">
-	<p>You immediately have to log in again with your new password.</p>
 	<p>
 		<label for="password">New password</label>
-		<input type="text" name="password" id="password" autocomplete="new-password" />
+		<input type="password" name="password" id="password" autocomplete="new-password" />
 	</p>
 	<p>
 		<button class="submit">Save</button>

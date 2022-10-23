@@ -1,13 +1,21 @@
 <?php
 
-function set_message( $message ) {
-	$_SESSION['bookr']['message'] = $message;
+function set_message( string $text, string $type = 'success' ) : void {
+	$_SESSION['message'] = compact('type', 'text');
 }
 
-function get_message() {
-	$message = $_SESSION['bookr']['message'] ?? null;
-	unset($_SESSION['bookr']['message']);
+function get_message() : ?array {
+	$message = $_SESSION['message'] ?? null;
+	unset($_SESSION['message']);
 	return $message;
+}
+
+function get_ip() {
+	return $_SERVER['REMOTE_ADDR'] ?? '';
+}
+
+function is_debug_ip() {
+	return defined('DEBUG_IPS') && in_array(get_ip(), DEBUG_IPS);
 }
 
 function html_asset( $src ) {
@@ -15,12 +23,6 @@ function html_asset( $src ) {
 	$mobile = is_int(stripos($_SERVER['HTTP_USER_AGENT'], 'mobile'));
 	$buster = $local && !$mobile ? '' : '?_' . filemtime($src);
 	return $src . $buster;
-}
-
-function do_auth() {
-	header('WWW-Authenticate: Basic realm="Bookr login"');
-	echo "Bookr login";
-	exit;
 }
 
 function csv_escape( $val ) {

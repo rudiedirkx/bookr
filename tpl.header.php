@@ -20,14 +20,16 @@ header('Content-type: text/html; charset=utf-8');
 
 <body>
 
-<p class="menu">
-	<a href="index.php">Library</a> |
-	<a href="form.php">Add</a> |
-	<a href="authors.php">Authors</a> |
-	<a href="import.php">Import</a> |
-	<a href="settings.php">Settings</a>
-</p>
+<? if ($g_user): ?>
+	<p class="menu">
+		<a href="index.php">Library</a> |
+		<a href="form.php">Add</a> |
+		<a href="authors.php">Authors</a> |
+		<a href="import.php">Import</a> |
+		<a href="settings.php">Settings</a>
+	</p>
+<? endif ?>
 
 <? if ($msg = get_message()): ?>
-	<div class="message" onclick="this.remove()"><?= nl2br(html(trim($msg))) ?></div>
+	<div class="message <?= $msg['type'] ?>" onclick="this.remove()"><?= nl2br(html(trim($msg['text']))) ?></div>
 <? endif ?>

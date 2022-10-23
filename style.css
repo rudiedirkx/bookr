@@ -64,6 +64,9 @@ button.delete {
 	left: 10px;
 	right: 10px;
 }
+.message.error {
+	background-color: red;
+}
 
 /**
  * List sorting

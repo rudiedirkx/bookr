@@ -20,17 +20,20 @@ Model::$_db = $db;
 
 $db->ensureSchema(require 'inc.db-schema.php');
 
-$g_user = User::fromAuth(@$_SERVER['PHP_AUTH_USER'], @$_SERVER['PHP_AUTH_PW']);
-if ( !$g_user ) {
-	do_auth();
+session_name('bookrsession');
+session_start();
+
+$g_user = User::fromSession($_SESSION['login']['id'] ?? 0);
+if ( !$g_user && basename($_SERVER['SCRIPT_NAME']) != 'login.php' ) {
+	set_message("You must log in.", 'error');
+	do_redirect('login');
+	exit;
 }
 
 /** @var Provider[] */
 $g_searchers = array_map(function(array $args) {
 	return new $args[0](...array_slice($args, 1));
 }, BOOKR_SEARCHERS);
-
-session_start();
 
 header('Access-Control-Expose-Headers: Location');
 header('Content-type: text/plain; charset=utf-8');

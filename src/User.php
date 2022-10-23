@@ -6,16 +6,25 @@ class User extends Model {
 
 	static public $_table = 'users';
 
-	static public function fromAuth( $username, $password ) {
+	static public function fromAuth( string $username, string $password ) : ?self {
 		if ( $username && $password ) {
 			$user = self::first(['username' => $username]);
 			if ( $user && password_verify($password, $user->password) ) {
-				if ( $user->last_login < time() - 60 ) {
-					$user->update(['last_login' => time()]);
-				}
 				return $user;
 			}
 		}
+		return null;
+	}
+
+	static public function fromSession( int $id ) : ?self {
+		$user = self::find($id);
+		if ( $user ) {
+			if ( $user->last_login < time() - 60 ) {
+				$user->update(['last_login' => time()]);
+			}
+			return $user;
+		}
+		return null;
 	}
 
 	protected function getSetting( $setting, $default = null ) {
