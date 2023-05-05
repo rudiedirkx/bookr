@@ -4,9 +4,10 @@ namespace rdx\bookr\search;
 
 class Google implements Provider {
 
-	public function search( $text, $debug = false ) {
+	public function search( string $text, bool $debug = false ) : array {
 		$params = array(
 			'q' => $text,
+			'printType' => 'books',
 			'orderBy' => 'relevance',
 			'maxResults' => '10',
 		);
@@ -16,6 +17,8 @@ class Google implements Provider {
 
 		$response = json_decode($json, true);
 		$products = $response['items'];
+
+		if ($debug) print_r($products);
 
 		$results = [];
 		foreach ( $products as $product ) {
@@ -29,18 +32,25 @@ class Google implements Provider {
 				}
 			}
 
-			$results[] = [
-				'source' => 'google',
-				'id' => trim($product['id']),
-				'title' => trim($product['volumeInfo']['title']),
-				'subtitle' => trim(@$product['volumeInfo']['subtitle']),
-				'author' => trim(@$product['volumeInfo']['authors'][0]),
-				'rating' => isset($product['volumeInfo']['averageRating']) ? round($product['volumeInfo']['averageRating'] / 5) : null,
-				'summary' => trim(@$product['volumeInfo']['description']),
-				'isbn10' => trim($isbn10),
-				'isbn13' => trim($isbn13),
-			];
+			if (!isset($product['volumeInfo']['authors'][0])) continue;
+			$author = implode(', ', $product['volumeInfo']['authors']);
+
+			$results[] = new SearchResult(
+				'google',
+				$product['id'],
+				$product['volumeInfo']['title'],
+				$author,
+				subtitle: $product['volumeInfo']['subtitle'] ?? null,
+				summary: $product['volumeInfo']['description'] ?? null,
+				rating: isset($product['volumeInfo']['averageRating']) ? round($product['volumeInfo']['averageRating'] * 2) : null,
+				pages: $product['volumeInfo']['pageCount'] ?? null,
+				pubyear: intval($product['volumeInfo']['publishedDate'] ?? 0) ?: null,
+				isbn10: trim($isbn10) ?: null,
+				isbn13: trim($isbn13) ?: null,
+			);
 		}
+
+		if ($debug) print_r($results);
 
 		return $results;
 	}

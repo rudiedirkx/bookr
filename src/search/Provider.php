@@ -4,7 +4,6 @@ namespace rdx\bookr\search;
 
 interface Provider {
 
-	/** @return array[] */
-	public function search( $text, $debug = false );
+	public function search( string $text, bool $debug = false ) : array;
 
 }

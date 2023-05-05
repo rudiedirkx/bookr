@@ -10,7 +10,7 @@ class Bol implements Provider {
 		$this->apiKey = $apiKey;
 	}
 
-	public function search( $text, $debug = false ) {
+	public function search( string $text, bool $debug = false ) : array {
 		$params = array(
 			'format' => 'json',
 			'apikey' => $this->apiKey,

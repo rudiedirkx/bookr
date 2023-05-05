@@ -295,17 +295,16 @@ console.time('SEARCH "' + q + '"');
 console.log('RESULTS', rsp);
 
 			function enc(text) {
-				return text.replace(/</g, '&lt;');
+				return text ? text.replace(/</g, '&lt;') : '';
 			}
 
 			var html = '';
 			rsp.matches.forEach(function(book) {
 				books[book.source + book.id] = book;
 				var rating = book.rating != null ? '(' + book.rating + '/10) ' : '';
-				html +=	'<li title="' + book.classification + '"><a data-id="' + book.source + book.id + '" href>' +
+				html +=	'<li><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-						( book.subtitle ? '<div class="subtitle">(' + book.pubyear + ') ' + enc(book.subtitle) + '</div>' : '' ) +
-						( !book.subtitle && book.classification ? '<div class="classification">(' + book.pubyear + ') ' + enc(book.classification) + '</div>' : '' ) +
+						'<div class="subtitle">(' + book.pubyear + ') ' + enc(book.subtitle) + '</div>' +
 						'</a></li>';
 			});
 
