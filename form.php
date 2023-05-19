@@ -304,7 +304,7 @@ console.log('RESULTS', rsp);
 				var rating = book.rating != null ? '(' + book.rating + '/10) ' : '';
 				html +=	'<li><a data-id="' + book.source + book.id + '" href>' +
 						'<div class="author-title">' + enc(book.author) + ' - ' + enc(book.title) + '</div>' +
-						'<div class="subtitle">(' + book.pubyear + ') ' + enc(book.subtitle) + '</div>' +
+						'<div class="subtitle">' + rating + '(' + book.pubyear + ') ' + enc(book.subtitle) + '</div>' +
 						'</a></li>';
 			});
 
