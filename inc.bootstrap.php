@@ -24,8 +24,10 @@ session_name('bookrsession');
 session_start();
 
 $g_user = User::fromSession($_SESSION['login']['id'] ?? 0);
-if ( !$g_user && basename($_SERVER['SCRIPT_NAME']) != 'login.php' ) {
-	set_message("You must log in.", 'error');
+if ( !$g_user && !in_array(basename($_SERVER['SCRIPT_NAME']), ['login.php', 'logout.php']) ) {
+	if ( basename($_SERVER['SCRIPT_NAME']) != 'index.php' ) {
+		set_message("You must log in.", 'error');
+	}
 	do_redirect('login');
 	exit;
 }

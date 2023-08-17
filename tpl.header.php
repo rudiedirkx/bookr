@@ -26,7 +26,8 @@ header('Content-type: text/html; charset=utf-8');
 		<a href="form.php">Add</a> |
 		<a href="authors.php">Authors</a> |
 		<a href="import.php">Import</a> |
-		<a href="settings.php">Settings</a>
+		<a href="settings.php">Settings</a> |
+		<a href="logout.php">Log out</a>
 	</p>
 <? endif ?>
 
