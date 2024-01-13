@@ -4,6 +4,12 @@ use rdx\bookr\User;
 
 require 'inc.bootstrap.php';
 
+if ($g_user) {
+	do_redirect('index');
+	exit;
+
+}
+
 if ( isset($_POST['username'], $_POST['password']) ) {
 	$user = User::fromAuth($_POST['username'], $_POST['password']);
 	if ( $user ) {
