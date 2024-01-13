@@ -11,7 +11,7 @@ const FORMAT_DATETIME = "j M 'y H:i";
 const FORMAT_DATE = "j M 'y";
 
 // db connection
-$db = db_sqlite::open(array('database' => __DIR__ . '/db/bookr.sqlite3'));
+$db = db_sqlite::open(array('database' => DB_FILE));
 if ( !$db ) {
 	exit('No database connecto...');
 }
