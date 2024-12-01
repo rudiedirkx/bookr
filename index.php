@@ -28,6 +28,7 @@ if ($g_user->setting_labels) {
 	}, []);
 }
 else {
+	$labelOptions = [];
 	$categories = [];
 }
 
