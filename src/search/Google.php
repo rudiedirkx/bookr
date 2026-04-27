@@ -4,8 +4,13 @@ namespace rdx\bookr\search;
 
 class Google implements Provider {
 
+	public function __construct(
+		protected string $apiKey,
+	) {}
+
 	public function search( string $text, bool $debug = false ) : array {
 		$params = array(
+			'key' => $this->apiKey,
 			'q' => $text,
 			'printType' => 'books',
 			'orderBy' => 'relevance',

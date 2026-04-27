@@ -20,7 +20,7 @@ class Label extends UserModel {
 
 
 
-	static public function names( array $ids, Category $category = null ) {
+	static public function names( array $ids, ?Category $category = null ) {
 		$all = self::allSorted();
 		if ( $category ) {
 			$all = array_filter($all, function(Label $label) use ($category) {
