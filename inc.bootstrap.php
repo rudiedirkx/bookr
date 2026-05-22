@@ -21,7 +21,14 @@ Model::$_db = $db;
 $db->ensureSchema(require 'inc.db-schema.php');
 
 session_name('bookrsession');
+session_set_cookie_params([
+	'lifetime' => 86400 * 60,
+	'path' => '/',
+]);
 session_start();
+if (rand(1, 5) == 1) {
+	session_regenerate_id(true);
+}
 
 $g_user = User::fromSession($_SESSION['login']['id'] ?? 0);
 if ( !$g_user && !in_array(basename($_SERVER['SCRIPT_NAME']), ['login.php', 'logout.php']) ) {
